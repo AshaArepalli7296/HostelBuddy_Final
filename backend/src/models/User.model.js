@@ -9,16 +9,28 @@ const userSchema = new mongoose.Schema({
     maxlength: [100, 'Name cannot exceed 100 characters']
   },
   email: {
-  type: String,
-  required: true,
-  unique: true,
-  lowercase: true,
-  validate: {
-    validator: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
-    message: "Invalid email format"
-  }
-}
-,
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    validate: {
+      validator: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+      message: "Invalid email format"
+    }
+  },
+  fieldId: {
+    type: String,
+    required: [true, 'Please provide your field ID (e.g., Roll No / Warden ID)'],
+    trim: true
+  },
+  contact: {
+    type: String,
+    required: [true, 'Please provide a contact number'],
+    validate: {
+      validator: (v) => /^[0-9]{10}$/.test(v),
+      message: 'Contact number must be 10 digits'
+    }
+  },
   password: {
     type: String,
     required: [true, 'Please provide a password'],
@@ -38,11 +50,16 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  lastLogin: Date
+  lastLogin: Date,
+
+  // 👇 OTP for Forgot Password
+  otp: String,
+  otpExpires: Date
+
 }, {
   timestamps: true,
   toJSON: {
-    transform: function(doc, ret) {
+    transform: function (doc, ret) {
       delete ret.password;
       delete ret.__v;
     }
@@ -50,10 +67,9 @@ const userSchema = new mongoose.Schema({
 });
 
 // Hash password before saving
-userSchema.pre('save', async function(next) {
-  // Only hash if password is modified
+userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-  
+
   try {
     const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);
@@ -64,7 +80,7 @@ userSchema.pre('save', async function(next) {
 });
 
 // Password comparison method
-userSchema.methods.comparePassword = async function(candidatePassword) {
+userSchema.methods.comparePassword = async function (candidatePassword) {
   try {
     return await bcrypt.compare(candidatePassword, this.password);
   } catch (err) {
@@ -77,7 +93,6 @@ userSchema.index({
   fullName: 'text',
   email: 'text'
 });
-
 
 const User = mongoose.model('User', userSchema);
 export default User;

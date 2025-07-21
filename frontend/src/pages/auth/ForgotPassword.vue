@@ -11,7 +11,14 @@
         class="input-field"
       />
 
-      <button class="action-button" @click="sendOtp">Send OTP</button>
+      <button
+        class="action-button"
+        @click="sendOtp"
+        :disabled="!identifier.trim()"
+        :class="{ 'disabled-button': !identifier.trim() }"
+      >
+        Send OTP
+      </button>
 
       <div class="otp-group">
         <input
@@ -43,14 +50,26 @@
 
       <button class="action-button" @click="resetPassword">Reset Password</button>
 
-      <p class="back-login" @click="goToLogin">
-        ← Back to Login
-      </p>
+      <p class="back-login" @click="goToLogin">← Back to Login</p>
 
-      <p v-if="otpMessage" class="message" :class="{ 'error-message': otpMessage.startsWith('❗'), 'success-message': !otpMessage.startsWith('❗') }">
+      <p
+        v-if="otpMessage"
+        class="message"
+        :class="{
+          'error-message': otpMessage.startsWith('❗'),
+          'success-message': !otpMessage.startsWith('❗')
+        }"
+      >
         {{ otpMessage }}
       </p>
-      <p v-if="message" class="message" :class="{ 'error-message': message.startsWith('❗'), 'success-message': !message.startsWith('❗') }">
+      <p
+        v-if="message"
+        class="message"
+        :class="{
+          'error-message': message.startsWith('❗'),
+          'success-message': !message.startsWith('❗')
+        }"
+      >
         {{ message }}
       </p>
     </div>
@@ -58,6 +77,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "ForgotPassword",
   data() {
@@ -72,71 +93,107 @@ export default {
     };
   },
   methods: {
-    sendOtp() {
+    async sendOtp() {
       if (!this.identifier.trim()) {
         this.message = "❗ Please enter your phone number or email.";
         this.clearMessageAfterDelay();
         return;
       }
-      this.message = `📤 OTP sent to ${this.identifier}`;
+      try {
+        await axios.post("/api/v1/auth/send-otp", {
+          identifier: this.identifier,
+        });
+        this.message = `📤 OTP sent to ${this.identifier}`;
+      } catch (error) {
+        this.message =
+          `❗ ${error.response?.data?.message || "Failed to send OTP"}`;
+      }
       this.otpVerified = false;
       this.clearMessageAfterDelay();
     },
+
     focusNext(index, event) {
       const value = event.target.value;
       if (value.length === 1 && index < this.otpDigits.length - 1) {
         this.$refs["otp" + (index + 1)][0].focus();
       }
     },
-    verifyOtp() {
+
+    async verifyOtp() {
       const otp = this.otpDigits.join("");
       if (otp.length !== 4 || otp.includes("")) {
         this.otpMessage = "❗ Please enter complete OTP.";
         this.clearOtpMessageAfterDelay();
         return;
       }
-      this.otpVerified = true;
-      this.otpMessage = "✅ OTP verified successfully!";
+
+      try {
+        await axios.post("/api/v1/auth/verify-otp", {
+          identifier: this.identifier,
+          otp: otp,
+        });
+        this.otpVerified = true;
+        this.otpMessage = "✅ OTP verified successfully!";
+      } catch (error) {
+        this.otpMessage =
+          `❗ ${error.response?.data?.message || "Invalid OTP"}`;
+      }
+
       this.clearOtpMessageAfterDelay();
     },
-    resetPassword() {
+
+    async resetPassword() {
       if (!this.otpVerified) {
         this.message = "❗ Please verify your OTP first.";
         this.clearMessageAfterDelay();
         return;
       }
+
       if (!this.newPassword || !this.confirmPassword) {
         this.message = "❗ Please enter and confirm new password.";
         this.clearMessageAfterDelay();
         return;
       }
+
       if (this.newPassword !== this.confirmPassword) {
         this.message = "❗ Passwords do not match.";
         this.clearMessageAfterDelay();
         return;
       }
 
-      this.message = "🎉 Password reset successful!";
-      this.clearMessageAfterDelay();
+      try {
+        await axios.post("/api/v1/auth/reset-password", {
+          identifier: this.identifier,
+          newPassword: this.newPassword,
+        });
 
-      this.identifier = "";
-      this.otpDigits = ["", "", "", ""];
-      this.newPassword = "";
-      this.confirmPassword = "";
-      this.otpVerified = false;
-      
-      setTimeout(() => {
-        this.goToLogin();
-      }, 2000);
+        this.message = "🎉 Password reset successful!";
+        this.identifier = "";
+        this.otpDigits = ["", "", "", ""];
+        this.newPassword = "";
+        this.confirmPassword = "";
+        this.otpVerified = false;
+
+        setTimeout(() => this.goToLogin(), 2000);
+      } catch (error) {
+        this.message =
+          `❗ ${error.response?.data?.message || "Password reset failed"}`;
+      }
+
+      this.clearMessageAfterDelay();
     },
+
     goToLogin() {
-      this.$emit('close');
+      this.$emit("close");
+      // Or use this.$router.push('/login') if it's a standalone page
     },
+
     clearMessageAfterDelay() {
       setTimeout(() => {
         this.message = "";
       }, 5000);
     },
+
     clearOtpMessageAfterDelay() {
       setTimeout(() => {
         this.otpMessage = "";
@@ -151,7 +208,6 @@ export default {
   position: relative;
   width: 100%;
   max-width: 400px;
-  
 }
 
 .forgot-container {
@@ -245,6 +301,11 @@ export default {
 
 .action-button:hover {
   background-color: #17a689;
+}
+
+.disabled-button {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 .back-login {

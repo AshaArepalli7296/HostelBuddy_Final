@@ -49,18 +49,37 @@
               <span class="error-message" v-if="errors.email">{{ errors.email }}</span>
             </div>
 
+            <div class="input-group">
+              <input 
+                type="text" 
+                placeholder="Field ID (e.g. Roll No / Warden ID)" 
+                v-model="form.fieldId" 
+                required 
+                :class="{ 'input-error': errors.fieldId }"
+              />
+              <span class="error-message" v-if="errors.fieldId">{{ errors.fieldId }}</span>
+            </div>
+
+            <div class="input-group">
+              <input 
+                type="tel" 
+                placeholder="Contact Number" 
+                v-model="form.contact" 
+                required 
+                :class="{ 'input-error': errors.contact }"
+              />
+              <span class="error-message" v-if="errors.contact">{{ errors.contact }}</span>
+            </div>
+
             <div class="input-group password-container">
               <input 
-                :type="showPassword ? 'text' : 'password'" 
+                type="password" 
                 placeholder="Password (min 8 characters)" 
                 v-model="form.password" 
                 required 
                 :class="{ 'input-error': errors.password }"
                 @input="checkPasswordStrength"
               />
-              <span class="toggle-password" @click="showPassword = !showPassword">
-                {{ showPassword ? '👁️' : '👁️‍🗨️' }}
-              </span>
               <span class="error-message" v-if="errors.password">{{ errors.password }}</span>
               <div class="password-strength" v-if="form.password">
                 <div class="strength-bar" :class="passwordStrengthClass"></div>
@@ -70,15 +89,12 @@
 
             <div class="input-group password-container">
               <input 
-                :type="showConfirmPassword ? 'text' : 'password'" 
+                type="password" 
                 placeholder="Confirm Password" 
                 v-model="form.confirmPassword" 
                 required 
                 :class="{ 'input-error': errors.confirmPassword }"
               />
-              <span class="toggle-password" @click="showConfirmPassword = !showConfirmPassword">
-                {{ showConfirmPassword ? '👁️' : '👁️‍🗨️' }}
-              </span>
               <span class="error-message" v-if="errors.confirmPassword">{{ errors.confirmPassword }}</span>
             </div>
 
@@ -100,6 +116,8 @@ export default {
       form: {
         fullName: '',
         email: '',
+        fieldId: '',
+        contact: '',
         password: '',
         confirmPassword: '',
         role: 'student'
@@ -107,12 +125,12 @@ export default {
       errors: {
         fullName: '',
         email: '',
+        fieldId: '',
+        contact: '',
         password: '',
         confirmPassword: ''
       },
       isSubmitting: false,
-      showPassword: false,
-      showConfirmPassword: false,
       passwordStrength: 0
     }
   },
@@ -141,22 +159,21 @@ export default {
   methods: {
     validateForm() {
       let isValid = true;
-      
-      // Reset errors
+
       this.errors = {
         fullName: '',
         email: '',
+        fieldId: '',
+        contact: '',
         password: '',
         confirmPassword: ''
       };
 
-      // Name validation
       if (!this.form.fullName.trim()) {
         this.errors.fullName = 'Full name is required';
         isValid = false;
       }
 
-      // Email validation
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!this.form.email) {
         this.errors.email = 'Email is required';
@@ -166,7 +183,20 @@ export default {
         isValid = false;
       }
 
-      // Password validation
+      if (!this.form.fieldId.trim()) {
+        this.errors.fieldId = 'Field ID is required';
+        isValid = false;
+      }
+
+      const contactRegex = /^[0-9]{10}$/;
+      if (!this.form.contact.trim()) {
+        this.errors.contact = 'Contact number is required';
+        isValid = false;
+      } else if (!contactRegex.test(this.form.contact)) {
+        this.errors.contact = 'Enter a valid 10-digit contact number';
+        isValid = false;
+      }
+
       if (!this.form.password) {
         this.errors.password = 'Password is required';
         isValid = false;
@@ -175,7 +205,6 @@ export default {
         isValid = false;
       }
 
-      // Confirm password validation
       if (this.form.password !== this.form.confirmPassword) {
         this.errors.confirmPassword = 'Passwords do not match';
         isValid = false;
@@ -191,18 +220,14 @@ export default {
       }
 
       let strength = 0;
-      // Length check
       if (this.form.password.length >= 8) strength++;
-      // Contains number
       if (/\d/.test(this.form.password)) strength++;
-      // Contains uppercase
       if (/[A-Z]/.test(this.form.password)) strength++;
-      // Contains special char
       if (/[^A-Za-z0-9]/.test(this.form.password)) strength++;
-      
+
       this.passwordStrength = strength;
     },
-    
+
     async handleRegister() {
       if (!this.validateForm()) return;
 
@@ -211,12 +236,12 @@ export default {
       try {
         const response = await fetch('/api/v1/auth/register', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             fullName: this.form.fullName,
             email: this.form.email,
+            fieldId: this.form.fieldId,
+            contact: this.form.contact,
             password: this.form.password,
             confirmPassword: this.form.confirmPassword,
             role: this.form.role
@@ -230,12 +255,8 @@ export default {
           throw new Error(data.message || 'Registration failed. Server error occurred.');
         }
 
-        // Only store token in localStorage (user data is in MongoDB)
         localStorage.setItem('token', data.token);
-        
-        // Redirect based on role
         this.$router.push(`/${this.form.role}-dashboard`);
-        
       } catch (error) {
         console.error('Registration error:', error);
         alert(error.message || 'Registration failed. Please try again.');
@@ -243,13 +264,16 @@ export default {
         this.isSubmitting = false;
       }
     },
-    
+
     goToLogin() {
       this.$router.push('/login');
     }
   }
 }
 </script>
+
+
+
 
 <style scoped>
 .register-wrapper {
