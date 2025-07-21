@@ -1,80 +1,75 @@
 <template>
-   <Navbar_Student/>
-   <div class="Theme">
-  <div class="student-profile">
-   
-    <main>
-      <div class="profile-container">
-    
-        <!-- Profile Header -->
-        <div class="profile-header">
-          <div class="avatar-container">
-            <img :src="profile.imageUrl || defaultProfilePic" alt="Profile Picture" class="avatar">
-            <button @click="triggerFileInput" class="avatar-edit-btn">
-              <i class="fas fa-camera"></i>
+  <Navbar_Student />
+  <div class="Theme">
+    <div class="student-profile">
+      <main>
+        <div class="profile-container">
+          <div class="profile-header">
+            <div class="avatar-container">
+              <img :src="profile.imageUrl || defaultProfilePic" alt="Profile Picture" class="avatar">
+              <button @click="triggerFileInput" class="avatar-edit-btn">
+                <i class="fas fa-camera"></i>
+              </button>
+              <input type="file" ref="fileInput" @change="handleImageUpload" accept="image/*" style="display: none" />
+            </div>
+            <div class="profile-info">
+              <div v-if="editMode">
+                <input type="text" v-model="profile.name" class="edit-name-input" />
+              </div>
+              <div v-else>
+                <h1>{{ profile.name }}</h1>
+              </div>
+              <p class="role">Student</p>
+            </div>
+            <button @click="toggleEditMode" class="edit-profile-btn">
+              {{ editMode ? 'Cancel' : 'Edit Profile' }}
             </button>
-            <input type="file" ref="fileInput" @change="handleImageUpload" accept="image/*" style="display: none" />
           </div>
-          <div class="profile-info">
-            <div v-if="editMode">
-              <input type="text" v-model="profile.name" class="edit-name-input" />
+
+          <div class="profile-content">
+            <div class="profile-section">
+              <div class="section-header">
+                <h2><i class="fas fa-user-circle"></i> Personal Details</h2>
+                <button v-if="editMode" @click="saveProfile" class="save-btn">Save Changes</button>
+              </div>
+
+              <div class="details-grid">
+                <div class="detail-item">
+                  <label>Date of Birth</label>
+                  <input v-if="editMode" v-model="profile.dob" type="date">
+                  <p v-else>{{ profile.dob }}</p>
+                </div>
+
+                <div class="detail-item">
+                  <label>Email</label>
+                  <input v-if="editMode" v-model="profile.email" type="email">
+                  <p v-else>{{ profile.email }}</p>
+                </div>
+
+                <div class="detail-item">
+                  <label>Phone</label>
+                  <input v-if="editMode" v-model="profile.phone" type="tel">
+                  <p v-else>{{ profile.phone }}</p>
+                </div>
+
+                <div class="detail-item">
+                  <label>Address</label>
+                  <textarea v-if="editMode" v-model="profile.address"></textarea>
+                  <p v-else>{{ profile.address }}</p>
+                </div>
+              </div>
             </div>
-            <div v-else>
-              <h1>{{ profile.name }}</h1>
-            </div>
-            <p class="role">Student</p>
-          </div>
-          <button @click="toggleEditMode" class="edit-profile-btn">
-            {{ editMode ? 'Cancel' : 'Edit Profile' }}
-          </button>
-        </div>
-
-        <!-- Profile Content -->
-        <div class="profile-content">
-          <div class="profile-section">
-            <div class="section-header">
-              <h2><i class="fas fa-user-circle"></i> Personal Details</h2>
-              <button v-if="editMode" @click="saveProfile" class="save-btn">Save Changes</button>
-            </div>
-
-            <div class="details-grid">
-              <div class="detail-item">
-                <label>Date of Birth</label>
-                <input v-if="editMode" v-model="profile.dob" type="date">
-                <p v-else>{{ profile.dob }}</p>
-              </div>
-
-              <div class="detail-item">
-                <label>Email</label>
-                <input v-if="editMode" v-model="profile.email" type="email">
-                <p v-else>{{ profile.email }}</p>
-              </div>
-
-              <div class="detail-item">
-                <label>Phone</label>
-                <input v-if="editMode" v-model="profile.phone" type="tel">
-                <p v-else>{{ profile.phone }}</p>
-              </div>
-
-              <div class="detail-item">
-                <label>Address</label>
-                <textarea v-if="editMode" v-model="profile.address"></textarea>
-                <p v-else>{{ profile.address }}</p>
-              </div>
+            <div class="back-nav">
+              <button @click="goToDashboard" class="back-link">
+                ← Back to Dashboard
+              </button>
             </div>
           </div>
-           <div class="back-nav">
-          <button @click="goToDashboard" class="back-link">
-            ← Back to Dashboard
-          </button>
         </div>
-        </div>
-      </div>
-      
-    </main>
+      </main>
     </div>
   </div>
-  <Footer/>
+  <Footer />
 </template>
 
 <script>
@@ -83,7 +78,7 @@ import Footer from '@/components/Footer.vue';
 
 export default {
   name: 'StudentProfile',
-    components: {
+  components: {
     Navbar_Student,
     Footer
   },
@@ -92,15 +87,26 @@ export default {
       editMode: false,
       defaultProfilePic: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
       profile: {
-        name: 'John Doe',
-        dob: '2000-05-15',
-        email: 'john.doe@university.edu',
-        phone: '+1 (555) 123-4567',
-        address: '123 Hostel Lane, Room 204\nUniversity Campus\nCity, State 12345',
+        name: '',
+        dob: '',
+        email: '',
+        phone: '',
+        address: '',
         imageUrl: ''
       },
       originalProfile: {}
     };
+  },
+  mounted() {
+    const savedProfile = JSON.parse(localStorage.getItem('userProfile'));
+    if (savedProfile) {
+      this.profile.name = savedProfile.fullName || savedProfile.name || '';
+      this.profile.email = savedProfile.email || '';
+      this.profile.phone = savedProfile.contact || savedProfile.phone || '';
+      this.profile.dob = savedProfile.dob || '';
+      this.profile.address = savedProfile.address || '';
+      this.profile.imageUrl = savedProfile.imageUrl || '';
+    }
   },
   methods: {
     toggleEditMode() {
@@ -110,7 +116,15 @@ export default {
       this.editMode = !this.editMode;
     },
     saveProfile() {
-      console.log('Profile saved:', this.profile);
+      const updatedUser = {
+        fullName: this.profile.name,
+        email: this.profile.email,
+        contact: this.profile.phone,
+        dob: this.profile.dob,
+        address: this.profile.address,
+        imageUrl: this.profile.imageUrl
+      };
+      localStorage.setItem('userProfile', JSON.stringify(updatedUser));
       this.editMode = false;
       alert('Profile updated successfully!');
     },
@@ -120,7 +134,11 @@ export default {
     handleImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
-        this.profile.imageUrl = URL.createObjectURL(file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.profile.imageUrl = e.target.result;
+        };
+        reader.readAsDataURL(file);
       }
     },
     goToDashboard() {
@@ -133,6 +151,8 @@ export default {
 <style scoped>
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
 
+/* All your CSS remains unchanged (as posted) */
+
 .student-profile {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
@@ -140,13 +160,11 @@ export default {
   display: flex;
   flex-direction: column;
 }
-
 .profile-container {
   max-width: 1000px;
   margin: 0 auto;
   padding: 1.5rem;
 }
-
 .back-nav {
   margin-bottom: 1rem;
   text-align: center;
@@ -167,7 +185,6 @@ export default {
 .back-link:hover {
   background-color: #e6fffa;
 }
-
 .profile-header {
   display: flex;
   align-items: center;
@@ -175,13 +192,11 @@ export default {
   margin-bottom: 2rem;
   flex-wrap: wrap;
 }
-
 .avatar-container {
   position: relative;
   width: 120px;
   height: 120px;
 }
-
 .avatar {
   width: 100%;
   height: 100%;
@@ -189,7 +204,6 @@ export default {
   object-fit: cover;
   border: 4px solid #1BBC9B;
 }
-
 .avatar-edit-btn {
   position: absolute;
   bottom: 0;
@@ -208,7 +222,6 @@ export default {
 .avatar-edit-btn:hover {
   background: #16a085;
 }
-
 .profile-info {
   flex: 1;
 }
@@ -222,7 +235,6 @@ export default {
   font-weight: 500;
   color: #555;
 }
-
 .edit-profile-btn {
   background: #1BBC9B;
   color: white;
@@ -236,7 +248,6 @@ export default {
 .edit-profile-btn:hover {
   background: #16a085;
 }
-
 .edit-name-input {
   font-size: 1.8rem;
   padding: 0.5rem;
@@ -244,20 +255,17 @@ export default {
   border-radius: 4px;
   width: 100%;
 }
-
 .profile-content {
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 1.5rem;
 }
-
 .profile-section {
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid #eee;
 }
-
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -272,7 +280,6 @@ export default {
   align-items: center;
   gap: 0.5rem;
 }
-
 .save-btn {
   background: #1BBC9B;
   color: white;
@@ -285,19 +292,16 @@ export default {
 .save-btn:hover {
   background: #16a085;
 }
-
 .details-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
 }
-
 .detail-item label {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
   color: #555;
-  
 }
 .detail-item p {
   margin: 0;
@@ -312,20 +316,13 @@ export default {
   border: 1px solid #ddd;
   border-radius: 4px;
   font-family: inherit;
-  
 }
 .detail-item textarea {
   min-height: 100px;
 }
-.Theme { background: linear-gradient(to bottom, 
-    #e0f8f6 0%, 
-    #f0fdfc 30%, 
-    #ffffff 50%, 
-    #f0fdfc 70%, 
-    #e0f8f6 100%);
-
+.Theme {
+  background: linear-gradient(to bottom, #e0f8f6 0%, #f0fdfc 30%, #ffffff 50%, #f0fdfc 70%, #e0f8f6 100%);
 }
-
 @media (max-width: 768px) {
   .profile-header {
     flex-direction: column;

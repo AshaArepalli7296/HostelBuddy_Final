@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import ForgotPassword from './ForgotPassword.vue'
+import ForgotPassword from './ForgotPassword.vue';
 
 export default {
   name: 'Login',
@@ -61,42 +61,42 @@ export default {
     }
   },
   methods: {
-  async handleLogin() {
-  try {
-    const response = await fetch('/api/v1/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: this.email.trim(),
-        password: this.password
-      }),
-      credentials: 'include'
-    });
+    async handleLogin() {
+      try {
+        const response = await fetch('/api/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: this.email.trim(),
+            password: this.password
+          }),
+          credentials: 'include'
+        });
 
-    const data = await response.json();
+        const data = await response.json();
 
-    if (!response.ok) {
-      throw new Error(data.message || 'Login failed. Please try again.');
-    }
+        if (!response.ok) {
+          throw new Error(data.message || 'Login failed. Please try again.');
+        }
 
-    // ✅ Save token to localStorage
-    localStorage.setItem('token', data.token);
+        // ✅ Save token and full user object
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userProfile', JSON.stringify(data.user));
 
-    // ✅ Use returned role for redirect
-    if (data.user?.role === 'student') {
-      this.$router.push('/student-dashboard');
-    } else if (data.user?.role === 'warden') {
-      this.$router.push('/warden-dashboard');
-    } else {
-      alert('Role not recognized. Please contact admin.');
-    }
+        // ✅ Redirect based on role
+        if (data.user?.role === 'student') {
+          this.$router.push('/student-dashboard');
+        } else if (data.user?.role === 'warden') {
+          this.$router.push('/warden-dashboard');
+        } else {
+          alert('Role not recognized. Please contact admin.');
+        }
 
-  } catch (error) {
-    console.error('Login Error:', error);
-    alert(error.message || 'User not found. Please sign up first.');
-  }
-}
-,
+      } catch (error) {
+        console.error('Login Error:', error);
+        alert(error.message || 'User not found. Please sign up first.');
+      }
+    },
     selectRole(role) {
       this.role = role;
     },
@@ -112,11 +112,12 @@ export default {
 
 <style scoped>
 .login-wrapper {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: white;
+  padding: 3rem 2rem;
+  background: linear-gradient(to bottom, #e0f8f6 0%, #f0fdfc 30%, #ffffff 50%, #f0fdfc 70%, #e0f8f6 100%);
   position: relative;
   overflow: hidden;
 }
@@ -137,6 +138,31 @@ export default {
   width: 55%;
   padding: 40px;
   background: white;
+  animation: fadeInUp 1s ease;
+}
+
+.welcome-box {
+  width: 45%;
+  padding: 40px;
+  background: #1bbc9b;
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-top-right-radius: 100px;
+  border-bottom-right-radius: 100px;
+  animation: fadeInUp 1s ease;
+}
+
+.welcome-box h3 {
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.welcome-box p {
+  font-size: 14px;
+  margin-bottom: 20px;
 }
 
 .title {
@@ -153,6 +179,7 @@ export default {
   border-radius: 9999px;
   overflow: hidden;
 }
+
 .role-selection button {
   flex: 1;
   padding: 10px;
@@ -162,6 +189,7 @@ export default {
   font-weight: bold;
   color: #333;
 }
+
 .role-selection button.active {
   background: #1bbc9b;
   color: white;
@@ -225,39 +253,20 @@ input:focus {
   margin-top: 12px;
   transition: all 0.4s ease;
 }
+
 .btn:hover {
   background: #0ca488;
   transform: translateY(-2px);
 }
+
 .btn.transparent {
   background: transparent;
   border: 2px solid white;
 }
+
 .btn.transparent:hover {
   background: rgba(255, 255, 255, 0.15);
   transform: translateY(-2px);
-}
-
-.welcome-box {
-  width: 45%;
-  padding: 40px;
-  background: #1bbc9b;
-  color: white;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  border-top-right-radius: 100px;
-  border-bottom-right-radius: 100px;
-}
-
-.welcome-box h3 {
-  font-size: 22px;
-  margin-bottom: 10px;
-}
-.welcome-box p {
-  font-size: 14px;
-  margin-bottom: 20px;
 }
 
 .modal-overlay {
@@ -277,14 +286,10 @@ input:focus {
 .modal-fade-leave-active {
   transition: opacity 0.3s ease;
 }
+
 .modal-fade-enter-from,
 .modal-fade-leave-to {
   opacity: 0;
-}
-
-.login-box,
-.welcome-box {
-  animation: fadeInUp 1s ease;
 }
 
 @keyframes fadeInUp {
@@ -297,19 +302,4 @@ input:focus {
     transform: translateY(0);
   }
 }
-.login-wrapper {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-padding: 3rem 2rem;
-  background: linear-gradient(to bottom, 
-    #e0f8f6 0%, 
-    #f0fdfc 30%, 
-    #ffffff 50%, 
-    #f0fdfc 70%, 
-    #e0f8f6 100%);
- position: relative;
-  overflow: hidden;}
 </style>

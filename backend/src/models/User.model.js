@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
+    // unique: true,
     lowercase: true,
     validate: {
       validator: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
@@ -54,7 +54,20 @@ const userSchema = new mongoose.Schema({
 
   // 👇 OTP for Forgot Password
   otp: String,
-  otpExpires: Date
+  otpExpires: Date,
+
+  // ✅ NEW: Additional Profile Fields
+  dob: {
+    type: String // Or Date type if you want proper date formatting
+  },
+  address: {
+    type: String,
+    trim: true
+  },
+  imageUrl: {
+    type: String,
+    default: ''
+  }
 
 }, {
   timestamps: true,

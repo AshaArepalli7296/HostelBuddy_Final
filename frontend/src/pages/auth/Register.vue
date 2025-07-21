@@ -11,75 +11,41 @@
         <div class="form-container">
           <h2 class="title">Sign Up</h2>
           <div class="role-selection">
-            <button 
-              type="button"
-              :class="{ active: form.role === 'student' }" 
-              @click="form.role = 'student'"
-            >
-              Student
-            </button>
-            <button 
-              type="button"
-              :class="{ active: form.role === 'warden' }" 
-              @click="form.role = 'warden'"
-            >
-              Warden
-            </button>
+            <button type="button" :class="{ active: form.role === 'student' }" @click="form.role = 'student'">Student</button>
+            <button type="button" :class="{ active: form.role === 'warden' }" @click="form.role = 'warden'">Warden</button>
           </div>
+
           <form @submit.prevent="handleRegister">
             <div class="input-group">
-              <input 
-                type="text" 
-                placeholder="Full Name" 
-                v-model="form.fullName" 
-                required 
-                :class="{ 'input-error': errors.fullName }"
-              />
+              <input type="text" placeholder="Full Name" v-model="form.fullName" required :class="{ 'input-error': errors.fullName }" />
               <span class="error-message" v-if="errors.fullName">{{ errors.fullName }}</span>
             </div>
 
             <div class="input-group">
-              <input 
-                type="email" 
-                placeholder="Email" 
-                v-model="form.email" 
-                required 
-                :class="{ 'input-error': errors.email }"
-              />
+              <input type="email" placeholder="Email" v-model="form.email" required :class="{ 'input-error': errors.email }" />
               <span class="error-message" v-if="errors.email">{{ errors.email }}</span>
             </div>
 
             <div class="input-group">
-              <input 
-                type="text" 
-                placeholder="Field ID (e.g. Roll No / Warden ID)" 
-                v-model="form.fieldId" 
-                required 
-                :class="{ 'input-error': errors.fieldId }"
-              />
+              <input type="text" placeholder="Field ID" v-model="form.fieldId" required :class="{ 'input-error': errors.fieldId }" />
               <span class="error-message" v-if="errors.fieldId">{{ errors.fieldId }}</span>
             </div>
 
             <div class="input-group">
-              <input 
-                type="tel" 
-                placeholder="Contact Number" 
-                v-model="form.contact" 
-                required 
-                :class="{ 'input-error': errors.contact }"
-              />
+              <input type="tel" placeholder="Contact Number" v-model="form.contact" required :class="{ 'input-error': errors.contact }" />
               <span class="error-message" v-if="errors.contact">{{ errors.contact }}</span>
             </div>
 
+            <div class="input-group">
+              <input type="date" v-model="form.dob" />
+            </div>
+
+            <div class="input-group">
+              <textarea placeholder="Address" v-model="form.address"></textarea>
+            </div>
+
             <div class="input-group password-container">
-              <input 
-                type="password" 
-                placeholder="Password (min 8 characters)" 
-                v-model="form.password" 
-                required 
-                :class="{ 'input-error': errors.password }"
-                @input="checkPasswordStrength"
-              />
+              <input type="password" placeholder="Password" v-model="form.password" required :class="{ 'input-error': errors.password }" @input="checkPasswordStrength" />
               <span class="error-message" v-if="errors.password">{{ errors.password }}</span>
               <div class="password-strength" v-if="form.password">
                 <div class="strength-bar" :class="passwordStrengthClass"></div>
@@ -88,13 +54,7 @@
             </div>
 
             <div class="input-group password-container">
-              <input 
-                type="password" 
-                placeholder="Confirm Password" 
-                v-model="form.confirmPassword" 
-                required 
-                :class="{ 'input-error': errors.confirmPassword }"
-              />
+              <input type="password" placeholder="Confirm Password" v-model="form.confirmPassword" required :class="{ 'input-error': errors.confirmPassword }" />
               <span class="error-message" v-if="errors.confirmPassword">{{ errors.confirmPassword }}</span>
             </div>
 
@@ -118,37 +78,32 @@ export default {
         email: '',
         fieldId: '',
         contact: '',
+        dob: '',
+        address: '',
         password: '',
         confirmPassword: '',
         role: 'student'
       },
-      errors: {
-        fullName: '',
-        email: '',
-        fieldId: '',
-        contact: '',
-        password: '',
-        confirmPassword: ''
-      },
+      errors: {},
       isSubmitting: false,
       passwordStrength: 0
-    }
+    };
   },
   computed: {
     welcomeTitle() {
-      return this.form.role === 'student' ? 'Welcome New Student!' : 'Warden Registration'
+      return this.form.role === 'student' ? 'Welcome New Student!' : 'Warden Registration';
     },
     welcomeText() {
       return this.form.role === 'student'
         ? 'Join our hostel community and enjoy seamless management.'
-        : 'Register as warden to manage hostel operations.'
+        : 'Register as warden to manage hostel operations.';
     },
     passwordStrengthClass() {
       return {
         weak: this.passwordStrength <= 2,
         medium: this.passwordStrength === 3,
         strong: this.passwordStrength >= 4
-      }
+      };
     },
     passwordStrengthText() {
       if (this.passwordStrength <= 2) return 'Weak password';
@@ -158,121 +113,82 @@ export default {
   },
   methods: {
     validateForm() {
-      let isValid = true;
-
-      this.errors = {
-        fullName: '',
-        email: '',
-        fieldId: '',
-        contact: '',
-        password: '',
-        confirmPassword: ''
-      };
+      this.errors = {};
+      let valid = true;
 
       if (!this.form.fullName.trim()) {
         this.errors.fullName = 'Full name is required';
-        isValid = false;
+        valid = false;
       }
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!this.form.email) {
-        this.errors.email = 'Email is required';
-        isValid = false;
-      } else if (!emailRegex.test(this.form.email)) {
-        this.errors.email = 'Please enter a valid email';
-        isValid = false;
+      if (!this.form.email || !emailRegex.test(this.form.email)) {
+        this.errors.email = 'Valid email is required';
+        valid = false;
       }
 
       if (!this.form.fieldId.trim()) {
         this.errors.fieldId = 'Field ID is required';
-        isValid = false;
+        valid = false;
       }
 
       const contactRegex = /^[0-9]{10}$/;
-      if (!this.form.contact.trim()) {
-        this.errors.contact = 'Contact number is required';
-        isValid = false;
-      } else if (!contactRegex.test(this.form.contact)) {
-        this.errors.contact = 'Enter a valid 10-digit contact number';
-        isValid = false;
+      if (!contactRegex.test(this.form.contact)) {
+        this.errors.contact = 'Valid 10-digit number required';
+        valid = false;
       }
 
-      if (!this.form.password) {
-        this.errors.password = 'Password is required';
-        isValid = false;
-      } else if (this.form.password.length < 8) {
+      if (this.form.password.length < 8) {
         this.errors.password = 'Password must be at least 8 characters';
-        isValid = false;
+        valid = false;
       }
 
       if (this.form.password !== this.form.confirmPassword) {
         this.errors.confirmPassword = 'Passwords do not match';
-        isValid = false;
+        valid = false;
       }
 
-      return isValid;
+      return valid;
     },
-
     checkPasswordStrength() {
-      if (!this.form.password) {
-        this.passwordStrength = 0;
-        return;
-      }
-
       let strength = 0;
       if (this.form.password.length >= 8) strength++;
       if (/\d/.test(this.form.password)) strength++;
       if (/[A-Z]/.test(this.form.password)) strength++;
       if (/[^A-Za-z0-9]/.test(this.form.password)) strength++;
-
       this.passwordStrength = strength;
     },
-
     async handleRegister() {
       if (!this.validateForm()) return;
-
       this.isSubmitting = true;
 
       try {
         const response = await fetch('/api/v1/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fullName: this.form.fullName,
-            email: this.form.email,
-            fieldId: this.form.fieldId,
-            contact: this.form.contact,
-            password: this.form.password,
-            confirmPassword: this.form.confirmPassword,
-            role: this.form.role
-          }),
+          body: JSON.stringify(this.form),
           credentials: 'include'
         });
 
         const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || 'Registration failed. Server error occurred.');
-        }
+        if (!response.ok) throw new Error(data.message || 'Registration failed');
 
         localStorage.setItem('token', data.token);
+        localStorage.setItem('userProfile', JSON.stringify(data.data.user));
+
         this.$router.push(`/${this.form.role}-dashboard`);
-      } catch (error) {
-        console.error('Registration error:', error);
-        alert(error.message || 'Registration failed. Please try again.');
+      } catch (err) {
+        alert(err.message || 'Registration failed');
       } finally {
         this.isSubmitting = false;
       }
     },
-
     goToLogin() {
       this.$router.push('/login');
     }
   }
-}
+};
 </script>
-
-
 
 
 <style scoped>

@@ -1,11 +1,10 @@
+// backend/controllers/auth.controller.js
 import User from '../models/User.model.js';
 import jwt from 'jsonwebtoken';
-import { promisify } from 'util';
 import AppError from '../utils/appError.js';
 import sendEmail from '../utils/sendEmail.js';
 import crypto from 'crypto';
 
-// JWT token helper
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -16,7 +15,18 @@ const signToken = (id) => {
 // ---------------- REGISTER ---------------- //
 export const register = async (req, res, next) => {
   try {
-    const { fullName, email, password, confirmPassword, fieldId, contact, role } = req.body;
+    const {
+      fullName,
+      email,
+      password,
+      confirmPassword,
+      fieldId,
+      contact,
+      role,
+      dob,
+      address,
+      imageUrl
+    } = req.body;
 
     if (!fullName || !email || !password || !confirmPassword || !fieldId || !contact || !role)
       return next(new AppError('All fields are required', 400));
@@ -41,6 +51,9 @@ export const register = async (req, res, next) => {
       fieldId,
       contact,
       role,
+      dob,
+      address,
+      imageUrl,
       isVerified: true
     });
 
@@ -80,17 +93,39 @@ export const login = async (req, res, next) => {
     user.password = undefined;
 
     res.status(200).json({
+      status: 'success',
+      message: 'Login successful',
       token,
       user: {
         id: user._id,
         role: user.role,
         email: user.email,
-        fullName: user.fullName
+        fullName: user.fullName,
+        fieldId: user.fieldId,
+        contact: user.contact,
+        dob: user.dob,
+        address: user.address,
+        imageUrl: user.imageUrl
       }
     });
 
   } catch (err) {
     next(new AppError('Login failed. Please try again.', 500));
+  }
+};
+
+// ---------------- GET PROFILE ---------------- //
+export const getProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) return next(new AppError('User not found', 404));
+
+    res.status(200).json({
+      status: 'success',
+      user
+    });
+  } catch (err) {
+    next(new AppError('Fetching profile failed', 500));
   }
 };
 
