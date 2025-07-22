@@ -87,6 +87,7 @@ export default {
       editMode: false,
       defaultProfilePic: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
       profile: {
+        id: '',
         name: '',
         dob: '',
         email: '',
@@ -100,6 +101,7 @@ export default {
   mounted() {
     const savedProfile = JSON.parse(localStorage.getItem('userProfile'));
     if (savedProfile) {
+      this.profile.id = savedProfile._id;
       this.profile.name = savedProfile.fullName || savedProfile.name || '';
       this.profile.email = savedProfile.email || '';
       this.profile.phone = savedProfile.contact || savedProfile.phone || '';
@@ -115,30 +117,64 @@ export default {
       }
       this.editMode = !this.editMode;
     },
-    saveProfile() {
-      const updatedUser = {
-        fullName: this.profile.name,
-        email: this.profile.email,
-        contact: this.profile.phone,
-        dob: this.profile.dob,
-        address: this.profile.address,
-        imageUrl: this.profile.imageUrl
-      };
-      localStorage.setItem('userProfile', JSON.stringify(updatedUser));
-      this.editMode = false;
-      alert('Profile updated successfully!');
+    async saveProfile() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/api/v1/auth/users/${this.profile.id}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            fullName: this.profile.name,
+            email: this.profile.email,
+            contact: this.profile.phone,
+            dob: this.profile.dob,
+            address: this.profile.address,
+            imageUrl: this.profile.imageUrl
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message);
+
+        localStorage.setItem('userProfile', JSON.stringify(data.data.user));
+        this.profile.imageUrl = data.data.user.imageUrl;
+        this.editMode = false;
+        alert('Profile updated successfully!');
+      } catch (err) {
+        console.error('Save error:', err);
+        alert('Profile update failed. Try again.');
+      }
     },
     triggerFileInput() {
       this.$refs.fileInput.click();
     },
-    handleImageUpload(event) {
+    async handleImageUpload(event) {
       const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.profile.imageUrl = e.target.result;
-        };
-        reader.readAsDataURL(file);
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/api/v1/auth/users/${this.profile.id}/avatar`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message);
+
+        this.profile.imageUrl = data.data.imageUrl;
+        localStorage.setItem('userProfile', JSON.stringify(data.data.user));
+        alert('Photo updated successfully!');
+      } catch (err) {
+        console.error('Image upload failed:', err);
+        alert('Image upload failed. Please try again.');
       }
     },
     goToDashboard() {
@@ -147,6 +183,10 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+/* 💅 Your existing CSS remains completely untouched */
+</style>
 
 <style scoped>
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');

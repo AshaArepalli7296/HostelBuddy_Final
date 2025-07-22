@@ -90,7 +90,7 @@
     </main>
     <Footer />
 
-    <!-- Modals -->
+    <!-- Change Password Modal -->
     <div v-if="showChangePassword" class="modal">
       <div class="modal-content">
         <span class="close" @click="showChangePassword = false">&times;</span>
@@ -102,6 +102,7 @@
       </div>
     </div>
 
+    <!-- 2FA Modal -->
     <div v-if="showTwoFactorModal" class="modal">
       <div class="modal-content">
         <span class="close" @click="showTwoFactorModal = false">&times;</span>
@@ -178,10 +179,35 @@ export default {
     changeAvatar() {
       console.log('Changing avatar...');
     },
-    saveProfile() {
+    async saveProfile() {
       this.editMode = false;
-      console.log('Profile saved:', this.warden);
-      alert('Profile updated successfully!');
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`/api/v1/auth/users/${this.warden.id}`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            fullName: this.warden.name,
+            email: this.warden.email,
+            contact: this.warden.phone,
+            address: this.warden.address,
+            imageUrl: this.warden.avatar
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message);
+
+        localStorage.setItem('userProfile', JSON.stringify(data.data.user));
+        alert('Profile updated successfully!');
+      } catch (err) {
+        console.error('Profile update failed:', err);
+        alert('Something went wrong. Try again.');
+      }
     },
     updatePassword() {
       if (this.password.new !== this.password.confirm) {
@@ -206,6 +232,7 @@ export default {
   }
 }
 </script>
+
 
 <style scoped>
 .admin-profile {
