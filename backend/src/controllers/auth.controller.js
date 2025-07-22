@@ -96,17 +96,7 @@ export const login = async (req, res, next) => {
       status: 'success',
       message: 'Login successful',
       token,
-      user: {
-        id: user._id,
-        role: user.role,
-        email: user.email,
-        fullName: user.fullName,
-        fieldId: user.fieldId,
-        contact: user.contact,
-        dob: user.dob,
-        address: user.address,
-        imageUrl: user.imageUrl
-      }
+      data: { user } // ✅ Send full user object in "data" wrapper
     });
 
   } catch (err) {
@@ -128,6 +118,27 @@ export const getProfile = async (req, res, next) => {
     next(new AppError('Fetching profile failed', 500));
   }
 };
+
+// ---------------- UPDATE PROFILE ---------------- //
+export const updateProfile = async (req, res, next) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+    }).select('-password');
+
+    if (!updatedUser) return next(new AppError('User not found', 404));
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Profile updated successfully',
+      data: { user: updatedUser }
+    });
+  } catch (err) {
+    next(new AppError('Profile update failed', 500));
+  }
+};
+
 
 // ---------------- SEND OTP ---------------- //
 export const sendOtp = async (req, res, next) => {

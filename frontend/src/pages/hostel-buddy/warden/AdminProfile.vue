@@ -3,10 +3,10 @@
     <Navbar_warden />
     <main>
       <div class="profile-container">
-        <!-- Profile Header -->
+        <!-- Header -->
         <div class="profile-header">
           <div class="avatar-container">
-            <img :src="warden.avatar" alt="Warden Avatar" class="avatar">
+            <img :src="warden.avatar" alt="Warden Avatar" class="avatar" />
             <button @click="changeAvatar" class="avatar-edit-btn">
               <i class="fas fa-camera"></i>
             </button>
@@ -21,36 +21,29 @@
           </button>
         </div>
 
-        <!-- Profile Content -->
+        <!-- Personal & Professional Details -->
         <div class="profile-content">
-          <!-- Personal Details -->
           <div class="profile-section">
             <div class="section-header">
               <h2><i class="fas fa-user-circle"></i> Personal Details</h2>
-              <button v-if="editMode" @click="saveProfile" class="save-btn">
-                Save Changes
-              </button>
+              <button v-if="editMode" @click="saveProfile" class="save-btn">Save Changes</button>
             </div>
-            
             <div class="details-grid">
               <div class="detail-item">
                 <label>Full Name</label>
-                <input v-if="editMode" v-model="warden.name" type="text">
+                <input v-if="editMode" v-model="warden.name" />
                 <p v-else>{{ warden.name }}</p>
               </div>
-              
               <div class="detail-item">
                 <label>Email</label>
-                <input v-if="editMode" v-model="warden.email" type="email">
+                <input v-if="editMode" v-model="warden.email" />
                 <p v-else>{{ warden.email }}</p>
               </div>
-              
               <div class="detail-item">
                 <label>Phone</label>
-                <input v-if="editMode" v-model="warden.phone" type="tel">
+                <input v-if="editMode" v-model="warden.phone" />
                 <p v-else>{{ warden.phone }}</p>
               </div>
-              
               <div class="detail-item">
                 <label>Address</label>
                 <textarea v-if="editMode" v-model="warden.address"></textarea>
@@ -59,7 +52,6 @@
             </div>
           </div>
 
-          <!-- Professional Details -->
           <div class="profile-section">
             <h2><i class="fas fa-briefcase"></i> Professional Details</h2>
             <div class="details-grid">
@@ -67,17 +59,14 @@
                 <label>Warden ID</label>
                 <p>{{ warden.wardenId }}</p>
               </div>
-              
               <div class="detail-item">
                 <label>Hostel</label>
                 <p>{{ warden.hostelName }}</p>
               </div>
-              
               <div class="detail-item">
                 <label>Department</label>
                 <p>{{ warden.department }}</p>
               </div>
-              
               <div class="detail-item">
                 <label>Years of Service</label>
                 <p>{{ warden.yearsOfService }}</p>
@@ -85,7 +74,6 @@
             </div>
           </div>
 
-          <!-- Account Security -->
           <div class="profile-section">
             <h2><i class="fas fa-shield-alt"></i> Account Security</h2>
             <div class="security-actions">
@@ -102,46 +90,30 @@
     </main>
     <Footer />
 
-    <!-- Change Password Modal -->
+    <!-- Modals -->
     <div v-if="showChangePassword" class="modal">
       <div class="modal-content">
         <span class="close" @click="showChangePassword = false">&times;</span>
         <h2>Change Password</h2>
-        <div class="form-group">
-          <label>Current Password</label>
-          <input type="password" v-model="password.current" placeholder="Enter current password">
-        </div>
-        <div class="form-group">
-          <label>New Password</label>
-          <input type="password" v-model="password.new" placeholder="Enter new password">
-        </div>
-        <div class="form-group">
-          <label>Confirm New Password</label>
-          <input type="password" v-model="password.confirm" placeholder="Confirm new password">
-        </div>
+        <div class="form-group"><label>Current Password</label><input v-model="password.current" type="password" /></div>
+        <div class="form-group"><label>New Password</label><input v-model="password.new" type="password" /></div>
+        <div class="form-group"><label>Confirm New Password</label><input v-model="password.confirm" type="password" /></div>
         <button @click="updatePassword" class="submit-btn">Update Password</button>
       </div>
     </div>
 
-    <!-- Two-Factor Auth Modal -->
     <div v-if="showTwoFactorModal" class="modal">
       <div class="modal-content">
         <span class="close" @click="showTwoFactorModal = false">&times;</span>
         <h2>Two-Factor Authentication</h2>
         <div class="two-factor-content">
-          <!-- <div class="qr-code">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=HostelBuddy2FA" alt="QR Code">
-            <p>Scan this QR code with your authenticator app</p>
-          </div> -->
-          <div class="verification-code">
-            <p>Or enter this secret key manually:</p>
-            <div class="secret-key">JBSWY3DPEHPK3PXP</div>
-            <div class="form-group">
-              <label>Verification Code</label>
-              <input type="text" v-model="twoFactorCode" placeholder="Enter 6-digit code">
-            </div>
-            <button @click="enableTwoFactor" class="submit-btn">Enable 2FA</button>
+          <p>Or enter this secret key manually:</p>
+          <div class="secret-key">JBSWY3DPEHPK3PXP</div>
+          <div class="form-group">
+            <label>Verification Code</label>
+            <input v-model="twoFactorCode" type="text" placeholder="Enter 6-digit code" />
           </div>
+          <button @click="enableTwoFactor" class="submit-btn">Enable 2FA</button>
         </div>
       </div>
     </div>
@@ -149,16 +121,12 @@
 </template>
 
 <script>
-
 import Footer from '@/components/Footer.vue'
 import Navbar_warden from '../../../components/Navbar_warden.vue'
 
 export default {
   name: 'AdminProfile',
-  components: {
-    Navbar_warden,
-    Footer
-  },
+  components: { Navbar_warden, Footer },
   data() {
     return {
       editMode: false,
@@ -171,51 +139,69 @@ export default {
         confirm: ''
       },
       warden: {
-        name: 'Dr. Priya Sharma',
-        email: 'warden.priya@hostelbuddy.edu',
-        phone: '+91 9876543210',
-        address: 'Hostel Warden Quarters, University Campus, Hyderabad',
-        wardenId: 'WH-2020-125',
-        hostelName: 'Girls Hostel Block A',
-        department: 'Computer Science',
-        yearsOfService: '4 years',
-        joinedDate: '15 June 2020',
-        avatar: 'https://randomuser.me/api/portraits/women/45.jpg'
+        id: '',
+        name: '',
+        email: '',
+        phone: '',
+        address: '',
+        wardenId: '',
+        hostelName: '',
+        department: '',
+        yearsOfService: '',
+        joinedDate: '',
+        avatar: ''
       }
+    }
+  },
+  mounted() {
+    const userProfile = localStorage.getItem('userProfile');
+    if (userProfile) {
+      const user = JSON.parse(userProfile);
+      this.warden = {
+        id: user._id,
+        name: user.fullName,
+        email: user.email,
+        phone: user.contact,
+        address: user.address,
+        wardenId: user.fieldId,
+        avatar: user.imageUrl,
+        hostelName: user.hostelName || 'Not Assigned',
+        department: user.department || 'Not Assigned',
+        yearsOfService: user.yearsOfService || 'N/A',
+        joinedDate: user.joinedDate || 'N/A'
+      };
+    } else {
+      console.warn('No profile found in localStorage');
     }
   },
   methods: {
     changeAvatar() {
-      // In a real app, this would open a file picker
-      console.log("Changing avatar...")
+      console.log('Changing avatar...');
     },
     saveProfile() {
-      this.editMode = false
-      // In a real app, this would call an API to save changes
-      console.log("Profile saved:", this.warden)
-      alert("Profile updated successfully!")
+      this.editMode = false;
+      console.log('Profile saved:', this.warden);
+      alert('Profile updated successfully!');
     },
     updatePassword() {
       if (this.password.new !== this.password.confirm) {
-        alert("New passwords don't match!")
-        return
+        alert("New passwords don't match!");
+        return;
       }
-      // In a real app, this would call an API
-      console.log("Updating password...")
-      this.showChangePassword = false
-      this.password = { current: '', new: '', confirm: '' }
-      alert("Password updated successfully!")
+      console.log('Updating password...');
+      this.showChangePassword = false;
+      this.password = { current: '', new: '', confirm: '' };
+      alert('Password updated successfully!');
     },
     enableTwoFactor() {
       if (this.twoFactorCode.length !== 6) {
-        alert("Please enter a valid 6-digit code")
-        return
+        alert('Please enter a valid 6-digit code');
+        return;
       }
-      // In a real app, this would verify the code
-      console.log("Enabling 2FA with code:", this.twoFactorCode)
-      this.showTwoFactorModal = false
-      this.twoFactorCode = ''
-      alert("Two-Factor Authentication enabled successfully!")
+      console.log('2FA enabled with:', this.twoFactorCode);
+      this.showTwoFactorModal = false;
+      this.twoFactorCode = '';
+      alert('Two-Factor Authentication enabled!');
     }
   }
 }

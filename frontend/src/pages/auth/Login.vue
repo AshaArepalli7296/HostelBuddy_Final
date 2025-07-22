@@ -79,14 +79,16 @@ export default {
           throw new Error(data.message || 'Login failed. Please try again.');
         }
 
-        // ✅ Save token and full user object
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('userProfile', JSON.stringify(data.user));
+        const user = data.data.user; // ✅ Use correct path for role and user object
 
-        // ✅ Redirect based on role
-        if (data.user?.role === 'student') {
+        // ✅ Save token and full user profile
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userProfile', JSON.stringify(user));
+
+        // ✅ Role-based routing
+        if (user.role === 'student') {
           this.$router.push('/student-dashboard');
-        } else if (data.user?.role === 'warden') {
+        } else if (user.role === 'warden') {
           this.$router.push('/warden-dashboard');
         } else {
           alert('Role not recognized. Please contact admin.');
@@ -109,6 +111,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 .login-wrapper {
