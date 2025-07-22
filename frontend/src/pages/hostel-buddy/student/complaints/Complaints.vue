@@ -1,90 +1,88 @@
 <template>
-   <Navbar_Student/>
-    <div class="request-container1">
-   
-  <div class="request-container">
-  
+  <Navbar_Student/>
+  <div class="request-container1">
+    <div class="request-container">
+      <div class="cards-wrapper">
 
-    <div class="cards-wrapper">
-      <!-- Left Card - Complaint Form -->
-      <div class="form-card">
-        <h1 class="center-heading">Complaint Submission</h1>
+        <!-- Complaint Form -->
+        <div class="form-card">
+          <h1 class="center-heading">Complaint Submission</h1>
+          
+          <div class="complaint-section">
+            <div class="form-group">
+              <label>Complaint Type:</label>
+              <select v-model="complaintType" class="form-input">
+                <option disabled value="">Select complaint type</option>
+                <option>Electrical</option>
+                <option>Plumbing</option>
+                <option>Furniture</option>
+                <option>Cleaning</option>
+                <option>Other</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Description:</label>
+              <textarea 
+                v-model="complaintDescription" 
+                placeholder="Please describe your complaint in detail..."
+                rows="4"
+                class="form-input"
+              ></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label>Upload Photo (Optional):</label>
+              <input type="file" @change="handleFileUpload" accept="image/*" class="form-input">
+            </div>
+            
+            <div class="submit-wrapper">
+              <button @click="submitComplaint" class="submit-btn">
+                Submit Complaint
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status Tracker -->
+        <div class="status-card">
+          <h2>Request Status</h2>
+          <div class="status-timeline">
+            <div class="status-step" :class="{ 'active': statusStep >= 1 }">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h3>Pending</h3>
+                <p>Complaint submitted for review</p>
+              </div>
+            </div>
+            
+            <div class="status-step" :class="{ 'active': statusStep >= 2 }">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h3>In Progress</h3>
+                <p>Maintenance team working on it</p>
+              </div>
+            </div>
+            
+            <div class="status-step" :class="{ 'active': statusStep >= 3 }">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h3>Resolved</h3>
+                <p>Issue has been resolved</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="current-status" v-if="currentComplaint">
+            <h3>Current Complaint:</h3>
+            <p><strong>Type:</strong> {{ currentComplaint.type }}</p>
+            <p><strong>Submitted:</strong> {{ formatDate(currentComplaint.date) }}</p>
+            <p><strong>Status:</strong> {{ currentComplaint.status }}</p>
+          </div>
+        </div>
         
-        <div class="complaint-section">
-          <div class="form-group">
-            <label>Complaint Type:</label>
-            <select v-model="complaintType" class="form-input">
-              <option disabled value="">Select complaint type</option>
-              <option>Electrical</option>
-              <option>Plumbing</option>
-              <option>Furniture</option>
-              <option>Cleaning</option>
-              <option>Other</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label>Description:</label>
-            <textarea 
-              v-model="complaintDescription" 
-              placeholder="Please describe your complaint in detail..."
-              rows="4"
-              class="form-input"
-            ></textarea>
-          </div>
-          
-          <div class="form-group">
-            <label>Upload Photo (Optional):</label>
-            <input type="file" @change="handleFileUpload" accept="image/*" class="form-input">
-          </div>
-          
-          <div class="submit-wrapper">
-            <button @click="submitComplaint" class="submit-btn">
-              Submit Complaint
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Right Card - Status Tracking -->
-      <div class="status-card">
-        <h2>Request Status</h2>
-        <div class="status-timeline">
-          <div class="status-step" :class="{ 'active': statusStep >= 1 }">
-            <div class="step-number">1</div>
-            <div class="step-content">
-              <h3>Pending</h3>
-              <p>Complaint submitted for review</p>
-            </div>
-          </div>
-          
-          <div class="status-step" :class="{ 'active': statusStep >= 2 }">
-            <div class="step-number">2</div>
-            <div class="step-content">
-              <h3>In Progress</h3>
-              <p>Maintenance team working on it</p>
-            </div>
-          </div>
-          
-          <div class="status-step" :class="{ 'active': statusStep >= 3 }">
-            <div class="step-number">3</div>
-            <div class="step-content">
-              <h3>Resolved</h3>
-              <p>Issue has been resolved</p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="current-status" v-if="currentComplaint">
-          <h3>Current Complaint:</h3>
-          <p><strong>Type:</strong> {{ currentComplaint.type }}</p>
-          <p><strong>Submitted:</strong> {{ currentComplaint.date }}</p>
-          <p><strong>Status:</strong> {{ currentComplaint.status }}</p>
-        </div>
       </div>
     </div>
-  </div>
-
   </div>
   <Footer/>
 </template>
@@ -92,18 +90,17 @@
 <script>
 import Navbar_Student from '../../../../components/Navbar_Student.vue';
 import Footer from '../../../../components/Footer.vue';
+import axios from 'axios';
 
 export default {
   name: 'ComplaintSystem',
-    components: {
-    Footer,Navbar_Student
-  },
+  components: { Footer, Navbar_Student },
   data() {
     return {
       complaintType: '',
       complaintDescription: '',
       uploadedPhoto: null,
-      statusStep: 1, // 1=Pending, 2=In Progress, 3=Resolved
+      statusStep: 1,
       currentComplaint: null
     }
   },
@@ -111,46 +108,68 @@ export default {
     handleFileUpload(event) {
       this.uploadedPhoto = event.target.files[0];
     },
-    submitComplaint() {
-      if (!this.complaintType) {
-        alert('Please select a complaint type');
+    formatDate(dateStr) {
+      return new Date(dateStr).toLocaleString('en-IN');
+    },
+    async submitComplaint() {
+      if (!this.complaintType || !this.complaintDescription) {
+        alert('Please fill in all required fields');
         return;
       }
-      
-      if (!this.complaintDescription) {
-        alert('Please describe your complaint');
-        return;
+
+      try {
+        let imageUrl = '';
+
+        if (this.uploadedPhoto) {
+          const formData = new FormData();
+          formData.append('file', this.uploadedPhoto);
+          formData.append('upload_preset', 'your_preset'); // 🔁 Replace with actual preset
+          const cloudRes = await axios.post(
+            'https://api.cloudinary.com/v1_1/your_cloud_name/image/upload', // 🔁 Replace with actual Cloudinary name
+            formData
+          );
+          imageUrl = cloudRes.data.secure_url;
+        }
+
+        const res = await axios.post('/api/v1/complaints', {
+          category: this.complaintType,
+          description: this.complaintDescription,
+          imageUrl
+        });
+
+        this.currentComplaint = {
+          type: res.data.category,
+          description: res.data.description,
+          date: res.data.date,
+          status: res.data.status
+        };
+
+        this.statusStep = 1;
+        alert('Complaint submitted successfully!');
+
+        // Simulated status change (optional visual cue)
+        setTimeout(() => {
+          this.statusStep = 2;
+          this.currentComplaint.status = 'In Progress';
+        }, 3000);
+        setTimeout(() => {
+          this.statusStep = 3;
+          this.currentComplaint.status = 'Resolved';
+        }, 8000);
+
+        this.complaintType = '';
+        this.complaintDescription = '';
+        this.uploadedPhoto = null;
+
+      } catch (err) {
+        console.error('Error submitting complaint:', err);
+        alert('Failed to submit complaint. Please try again.');
       }
-      
-      this.currentComplaint = {
-        type: this.complaintType,
-        description: this.complaintDescription,
-        photo: this.uploadedPhoto,
-        date: new Date().toLocaleString(),
-        status: 'Pending'
-      };
-      
-      // Simulate status updates
-      setTimeout(() => {
-        this.statusStep = 2;
-        this.currentComplaint.status = 'In Progress';
-      }, 3000);
-      
-      setTimeout(() => {
-        this.statusStep = 3;
-        this.currentComplaint.status = 'Resolved';
-      }, 8000);
-      
-      alert('Complaint submitted successfully!');
-      
-      // Reset form
-      this.complaintType = '';
-      this.complaintDescription = '';
-      this.uploadedPhoto = null;
     }
   }
 }
 </script>
+
 
 <style scoped>
 .request-container {

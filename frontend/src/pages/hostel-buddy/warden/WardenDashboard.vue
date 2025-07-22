@@ -38,47 +38,47 @@
         </div>
         <div class="mobile-menu-items">
           <div class="mobile-menu-item" @click="navigateTo('/announcements')">
-            <!-- <i class="fas fa-bullhorn"></i> -->
+            <i class="fas fa-bullhorn"></i>
             <span>Announcements</span>
           </div>
           <div class="mobile-menu-item" @click="navigateTo('/room-change')">
-            <!-- <i class="fas fa-exchange-alt"></i> -->
+            <i class="fas fa-exchange-alt"></i>
             <span>Change Rooms</span>
           </div>
           <div class="mobile-menu-item" @click="navigateTo('/menu-update')">
-            <!-- <i class="fas fa-utensils"></i> -->
+            <i class="fas fa-utensils"></i>
             <span>Update Menu</span>
           </div>
           <div class="mobile-menu-item" @click="navigateTo('/fee-management')">
-            <!-- <i class="fas fa-rupee-sign"></i> -->
+            <i class="fas fa-rupee-sign"></i>
             <span>Fee Management</span>
           </div>
           <div class="mobile-menu-item" @click="navigateTo('/complaint-management')">
-            <!-- <i class="fas fa-tools"></i> -->
+            <i class="fas fa-tools"></i>
             <span>View Complaints</span>
           </div>
           <div class="mobile-menu-item" @click="navigateTo('/payment-tracking')">
-            <!-- <i class="fas fa-file-invoice"></i> -->
+            <i class="fas fa-file-invoice"></i>
             <span>Fee Reports</span>
           </div>
           <div class="mobile-menu-item" @click="navigateTo('/hostel-occupancy')">
-            <!-- <i class="fas fa-bed"></i> -->
+            <i class="fas fa-bed"></i>
             <span>Hostel Occupancy</span>
           </div>
           <div class="mobile-menu-item" @click="navigateTo('/room-assignment')">
-            <!-- <i class="fas fa-home"></i> -->
+            <i class="fas fa-home"></i>
             <span>Room Allocation</span>
           </div>
           <div class="mobile-menu-item" @click="navigateTo('/student-management')">
-            <!-- <i class="fas fa-user-graduate"></i> -->
+            <i class="fas fa-user-graduate"></i>
             <span>Student Details</span>
           </div>
           <div class="mobile-menu-item" @click="navigateTo('/leave-approval')">
-            <!-- <i class="fas fa-calendar-check"></i> -->
+            <i class="fas fa-calendar-check"></i>
             <span>Leave Approval</span>
           </div>
           <div class="mobile-menu-item" @click="navigateTo('/rules')">
-            <!-- <i class="fas fa-clipboard-list"></i> -->
+            <i class="fas fa-clipboard-list"></i>
             <span>Edit Rules</span>
           </div>
         </div>
@@ -323,7 +323,6 @@ export default {
   display: flex;
   flex-direction: column;
   background-color: #f9fafb;
- 
 }
 
 /* Header Styles */
@@ -334,7 +333,7 @@ export default {
   padding: 1rem 2rem;
   background: linear-gradient(135deg, #1BBC9B, #16a085);
   color: white;
-  height: 80px;
+  height: 70px;
   position: fixed;
   top: 0;
   left: 0;
@@ -520,7 +519,7 @@ export default {
 /* Dashboard Content */
 .dashboard-content {
   flex: 1;
-  margin-top: 70px;
+  margin-top: 80px;
   margin-bottom: 60px;
   padding: 1.5rem;
   overflow-y: auto;

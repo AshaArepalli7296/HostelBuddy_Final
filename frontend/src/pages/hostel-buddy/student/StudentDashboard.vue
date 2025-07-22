@@ -38,35 +38,35 @@
         </div>
         <div class="mobile-menu-items">
           <div class="mobile-menu-item" @click="navigateTo('/payments')">
-            <!-- <i class="fas fa-rupee-sign"></i> -->
+            <i class="fas fa-rupee-sign"></i>
             <span>Pay Fee</span>
           </div>
           <div class="mobile-menu-item" @click="navigateTo('/apply')">
-            <!-- <i class="fas fa-bed"></i> -->
+            <i class="fas fa-bed"></i>
             <span>Apply for Room</span>
           </div>
           <div class="mobile-menu-item" @click="navigateTo('/change-request')">
-            <!-- <i class="fas fa-exchange-alt"></i> -->
+            <i class="fas fa-exchange-alt"></i>
             <span>Change Room</span>
           </div>
           <div class="mobile-menu-item" @click="navigateTo('/complaints')">
-            <!-- <i class="fas fa-tools"></i> -->
+            <i class="fas fa-tools"></i>
             <span>Raise Issue</span>
           </div>
           <div class="mobile-menu-item" @click="navigateTo('/cancel-meal')">
-            <!-- <i class="fas fa-book"></i> -->
+            <i class="fas fa-book"></i>
             <span>Cancel Meal</span>
           </div>
           <div class="mobile-menu-item" @click="navigateTo('/apply-leave')">
-            <!-- <i class="fas fa-calendar-minus"></i> -->
+            <i class="fas fa-calendar-minus"></i>
             <span>Apply Leave</span>
           </div>
           <div class="mobile-menu-item" @click="navigateTo('/menu')">
-            <!-- <i class="fas fa-utensils"></i> -->
+            <i class="fas fa-utensils"></i>
             <span>Check Menu</span>
           </div>
           <div class="mobile-menu-item" @click="navigateTo('/feedback')">
-            <!-- <i class="fas fa-comment-alt"></i> -->
+            <i class="fas fa-comment-alt"></i>
             <span>Meal Feedback</span>
           </div>
         </div>
@@ -271,7 +271,7 @@ export default {
   padding: 1rem 2rem;
   background: linear-gradient(135deg, #1BBC9B, #16a085);
   color: white;
-  height: 70px;
+  height: 80px;
   position: fixed;
   top: 0;
   left: 0;
