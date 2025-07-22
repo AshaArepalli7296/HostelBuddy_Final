@@ -2,23 +2,88 @@
   <div class="warden-dashboard">
     <!-- Fixed Header -->
     <header class="dashboard-header">
-      <h1>Warden Dashboard</h1>
-      <div class="profile-dropdown">
-        <button class="profile-btn" @click="toggleProfileDropdown">
-          <i class="fas fa-user-circle"></i>
-          <span>Warden</span>
-          <i class="fas fa-caret-down"></i>
-        </button>
-        <div v-if="showDropdown" class="dropdown-content">
-          <router-link to="/admin-profile" @click="showDropdown = false">
-            <i class="fas fa-user"></i> My Profile
-          </router-link>
-          <a href="#" @click.prevent="logout">
-            <i class="fas fa-sign-out-alt"></i> Logout
-          </a>
+      <div class="header-left">
+        <h1>Warden Dashboard</h1>
+      </div>
+      <div class="header-right">
+        <div class="profile-dropdown">
+          <button class="profile-btn" @click="toggleProfileDropdown">
+            <i class="fas fa-user-circle"></i>
+            <span>Warden</span>
+            <i class="fas fa-caret-down"></i>
+          </button>
+          <div v-if="showDropdown" class="dropdown-content">
+            <router-link to="/admin-profile" @click="showDropdown = false">
+              <i class="fas fa-user"></i> My Profile
+            </router-link>
+            <a href="#" @click.prevent="logout">
+              <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+          </div>
         </div>
+        <button class="hamburger-btn" @click="toggleMobileMenu">
+          <i class="fas fa-bars"></i>
+        </button>
       </div>
     </header>
+
+    <!-- Mobile Menu Overlay - Right Side -->
+    <div v-if="showMobileMenu" class="mobile-menu-overlay" @click="toggleMobileMenu">
+      <div class="mobile-menu-content right" @click.stop>
+        <div class="mobile-menu-header">
+          <h3>Quick Actions</h3>
+          <button class="close-btn" @click="toggleMobileMenu">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="mobile-menu-items">
+          <div class="mobile-menu-item" @click="navigateTo('/announcements')">
+            <!-- <i class="fas fa-bullhorn"></i> -->
+            <span>Announcements</span>
+          </div>
+          <div class="mobile-menu-item" @click="navigateTo('/room-change')">
+            <!-- <i class="fas fa-exchange-alt"></i> -->
+            <span>Change Rooms</span>
+          </div>
+          <div class="mobile-menu-item" @click="navigateTo('/menu-update')">
+            <!-- <i class="fas fa-utensils"></i> -->
+            <span>Update Menu</span>
+          </div>
+          <div class="mobile-menu-item" @click="navigateTo('/fee-management')">
+            <!-- <i class="fas fa-rupee-sign"></i> -->
+            <span>Fee Management</span>
+          </div>
+          <div class="mobile-menu-item" @click="navigateTo('/complaint-management')">
+            <!-- <i class="fas fa-tools"></i> -->
+            <span>View Complaints</span>
+          </div>
+          <div class="mobile-menu-item" @click="navigateTo('/payment-tracking')">
+            <!-- <i class="fas fa-file-invoice"></i> -->
+            <span>Fee Reports</span>
+          </div>
+          <div class="mobile-menu-item" @click="navigateTo('/hostel-occupancy')">
+            <!-- <i class="fas fa-bed"></i> -->
+            <span>Hostel Occupancy</span>
+          </div>
+          <div class="mobile-menu-item" @click="navigateTo('/room-assignment')">
+            <!-- <i class="fas fa-home"></i> -->
+            <span>Room Allocation</span>
+          </div>
+          <div class="mobile-menu-item" @click="navigateTo('/student-management')">
+            <!-- <i class="fas fa-user-graduate"></i> -->
+            <span>Student Details</span>
+          </div>
+          <div class="mobile-menu-item" @click="navigateTo('/leave-approval')">
+            <!-- <i class="fas fa-calendar-check"></i> -->
+            <span>Leave Approval</span>
+          </div>
+          <div class="mobile-menu-item" @click="navigateTo('/rules')">
+            <!-- <i class="fas fa-clipboard-list"></i> -->
+            <span>Edit Rules</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Scrollable Content -->
     <main class="dashboard-content">
@@ -54,98 +119,17 @@
         </div>
       </div>
 
-      <!-- Quick Access Sections -->
-      <div class="quick-access-grid">
-        <!-- First Row -->
-        <div class="quick-access-card" @click="$router.push('/announcements')">
-          <h3>Announcements</h3>
-          <p>Create and manage hostel announcements</p>
-          <button class="access-btn">
-            Manage <i class="fas fa-arrow-right"></i>
-          </button>
-        </div>
-
-        <div class="quick-access-card" @click="$router.push('/room-change')">
-          <h3>Change Rooms</h3>
-          <p>Manage student room assignments</p>
-          <button class="access-btn">
-            Manage <i class="fas fa-arrow-right"></i>
-          </button>
-        </div>
-
-        <div class="quick-access-card" @click="$router.push('/menu-update')">
-          <h3>Update Menu</h3>
-          <p>Update and manage mess menus</p>
-          <button class="access-btn">
-            Update <i class="fas fa-arrow-right"></i>
-          </button>
-        </div>
-
-        <!-- Second Row -->
-        <div class="quick-access-card" @click="$router.push('/fee-management')">
-          <h3>Fee Management</h3>
-          <p>View and manage student fees</p>
-          <button class="access-btn">
-            View <i class="fas fa-arrow-right"></i>
-          </button>
-        </div>
-
-        <div class="quick-access-card" @click="showQuickComplaintView">
-          <h3>View Complaints</h3>
-          <p>Check and resolve student complaints</p>
-          <button class="access-btn">
-            View <i class="fas fa-arrow-right"></i>
-          </button>
-        </div>
-
-        <div class="quick-access-card" @click="showFeeReports">
-          <h3>Fee Reports</h3>
-          <p>Generate and view fee reports</p>
-          <button class="access-btn">
-            View <i class="fas fa-arrow-right"></i>
-          </button>
-        </div>
-
-        <!-- Third Row -->
-        <div class="quick-access-card" @click="navigateToHostelOccupancy">
-          <h3>Hostel Occupancy</h3>
-          <p>Which room are available</p>
-          <button class="access-btn">
-            Check <i class="fas fa-arrow-right"></i>
-          </button>
-        </div>
-
-        <div class="quick-access-card" @click="navigateToRoomAllocation">
-          <h3>Room Allocation</h3>
-          <p>Manage student room assignments</p>
-          <button class="access-btn">
-            Allocate <i class="fas fa-arrow-right"></i>
-          </button>
-        </div>
-
-        <div class="quick-access-card" @click="navigateToMessManagement">
-          <h3>Students Details</h3>
-          <p>Check the student status</p>
-          <button class="access-btn">
-            Manage <i class="fas fa-arrow-right"></i>
-          </button>
-        </div>
-
-        <!-- Fourth Row -->
-        <div class="quick-access-card" @click="navigateToStudentRecords">
-          <h3>Leave Approval</h3>
-          <p>Manage student leave requests</p>
-          <button class="access-btn">
-            Approve <i class="fas fa-arrow-right"></i>
-          </button>
-        </div>
-
-        <div class="quick-access-card" @click="navigateToMessRules">
-          <h3>Edit Rules</h3>
-          <p>Update hostel rules and regulations</p>
-          <button class="access-btn">
-            Manage <i class="fas fa-arrow-right"></i>
-          </button>
+      <!-- Quick Access Cards - All menu items as cards -->
+      <div class="dashboard-section">
+        <h2>Quick Access</h2>
+        <div class="quick-access-grid">
+          <div class="quick-access-card" v-for="(action, index) in quickActions" :key="index" @click="navigateTo(action.route)">
+            <div class="action-icon" :style="{ backgroundColor: action.bgColor }">
+              <i :class="action.icon"></i>
+            </div>
+            <h3>{{ action.title }}</h3>
+            <p>{{ action.description }}</p>
+          </div>
         </div>
       </div>
     </main>
@@ -166,6 +150,7 @@ export default {
   data() {
     return {
       showDropdown: false,
+      showMobileMenu: false,
       metricList: [
         {
           title: 'Total Students',
@@ -221,44 +206,116 @@ export default {
           description: 'Leave request approved for Arjun Kumar',
           time: 'Yesterday'
         }
+      ],
+      quickActions: [
+        {
+          title: 'Announcements',
+          icon: 'fas fa-bullhorn',
+          description: 'Make new announcements to students',
+          route: '/announcements',
+          bgColor: '#e3f2fd'
+        },
+        {
+          title: 'Room Allocation',
+          icon: 'fas fa-home',
+          description: 'Assign rooms to new students',
+          route: '/room-assignment',
+          bgColor: '#e8f5e9'
+        },
+        {
+          title: 'Leave Approval',
+          icon: 'fas fa-calendar-check',
+          description: 'Approve student leave requests',
+          route: '/leave-approval',
+          bgColor: '#fff3e0'
+        },
+        {
+          title: 'Complaints',
+          icon: 'fas fa-tools',
+          description: 'View and resolve complaints',
+          route: '/complaint-management',
+          bgColor: '#f3e5f5'
+        },
+        {
+          title: 'Fee Management',
+          icon: 'fas fa-rupee-sign',
+          description: 'Manage student fee payments',
+          route: '/fee-management',
+          bgColor: '#e0f7fa'
+        },
+        {
+          title: 'Student Details',
+          icon: 'fas fa-user-graduate',
+          description: 'View and manage student records',
+          route: '/student-management',
+          bgColor: '#f1f8e9'
+        },
+        {
+          title: 'Hostel Occupancy',
+          icon: 'fas fa-bed',
+          description: 'View current hostel occupancy',
+          route: '/hostel-occupancy',
+          bgColor: '#fce4ec'
+        },
+        {
+          title: 'Fee Reports',
+          icon: 'fas fa-file-invoice',
+          description: 'Generate fee payment reports',
+          route: '/payment-tracking',
+          bgColor: '#e8eaf6'
+        },
+        {
+          title: 'Change Rooms',
+          icon: 'fas fa-exchange-alt',
+          description: 'Process room change requests',
+          route: '/room-change',
+          bgColor: '#e0f2f1'
+        },
+        {
+          title: 'Update Menu',
+          icon: 'fas fa-utensils',
+          description: 'Update hostel food menu',
+          route: '/menu-update',
+          bgColor: '#fff8e1'
+        },
+        {
+          title: 'Edit Rules',
+          icon: 'fas fa-clipboard-list',
+          description: 'Update hostel rules and policies',
+          route: '/rules',
+          bgColor: '#efebe9'
+        }
       ]
     }
   },
   methods: {
     toggleProfileDropdown() {
       this.showDropdown = !this.showDropdown
+      if (this.showDropdown) {
+        this.showMobileMenu = false
+      }
+    },
+    toggleMobileMenu() {
+      this.showMobileMenu = !this.showMobileMenu
+      if (this.showMobileMenu) {
+        this.showDropdown = false
+      }
     },
     logout() {
       console.log("Logging out...")
       this.showDropdown = false
       this.$router.push('/login')
     },
-    showQuickComplaintView() {
-      this.$router.push('/complaint-management')
-    },
-    navigateToHostelOccupancy() {
-      this.$router.push('/hostel-occupancy')
-    },
-    showFeeReports() {
-      this.$router.push('/payment-tracking')
-    },
-    navigateToRoomAllocation() {
-      this.$router.push('/room-assignment')
-    },
-    navigateToMessManagement() {
-      this.$router.push('/student-management')
-    },
-    navigateToStudentRecords() {
-      this.$router.push('/leave-approval')
-    },
-    navigateToMessRules() {
-      this.$router.push('/rules')
+    navigateTo(route) {
+      this.$router.push(route)
+      this.showMobileMenu = false
     }
   }
 }
 </script>
 
 <style scoped>
+/* Main Dashboard Styles */
 .warden-dashboard {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
@@ -269,28 +326,202 @@ export default {
  
 }
 
-
-  .dashboard-header {
+/* Header Styles */
+.dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 2rem;
+  padding: 1rem 2rem;
   background: linear-gradient(135deg, #1BBC9B, #16a085);
   color: white;
-   height:100px;
+  height: 80px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .dashboard-header h1 {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
+/* Hamburger Button - Now after profile button */
+.hamburger-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
 
-/* Scrollable Content Area */
+.hamburger-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile Menu Styles - Right Side */
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.mobile-menu-content.right {
+  background-color: white;
+  width: 280px;
+  height: 100vh;
+  overflow-y: auto;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+  animation: slideInRight 0.3s ease-out;
+}
+
+.mobile-menu-header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #1BBC9B, #16a085);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mobile-menu-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.mobile-menu-items {
+  padding: 1rem 0;
+}
+
+.mobile-menu-item {
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-right: 4px solid transparent;
+}
+
+.mobile-menu-item:hover {
+  background-color: #f5f5f5;
+  border-right-color: #1BBC9B;
+}
+
+.mobile-menu-item i {
+  width: 24px;
+  text-align: center;
+  color: #1BBC9B;
+  font-size: 1.1rem;
+}
+
+.mobile-menu-item span {
+  font-size: 0.95rem;
+  color: #333;
+}
+
+/* Profile Dropdown */
+.profile-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+
+.profile-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.profile-btn i {
+  font-size: 1.2rem;
+}
+
+.dropdown-content {
+  position: absolute;
+  right: 0;
+  background-color: white;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+  z-index: 1001;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.dropdown-content a {
+  color: #333;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.dropdown-content a:hover {
+  background-color: #f5f5f5;
+  color: #1BBC9B;
+}
+
+.dropdown-content i {
+  width: 20px;
+  text-align: center;
+}
+
+/* Dashboard Content */
 .dashboard-content {
   flex: 1;
-  margin-top: 0px; /* Height of header */
-  margin-bottom: 60px; /* Height of footer */
+  margin-top: 70px;
+  margin-bottom: 60px;
   padding: 1.5rem;
   overflow-y: auto;
 }
@@ -311,6 +542,11 @@ export default {
   display: flex;
   justify-content: space-between;
   border-top: 4px solid #1BBC9B;
+  transition: transform 0.2s;
+}
+
+.metric-card:hover {
+  transform: translateY(-5px);
 }
 
 .metric-content {
@@ -420,9 +656,9 @@ export default {
 /* Quick Access Grid */
 .quick-access-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-top: 1.5rem;
 }
 
 .quick-access-card {
@@ -430,100 +666,53 @@ export default {
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   padding: 1.5rem;
-  border-top: 4px solid #1BBC9B;
+  text-align: center;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: all 0.3s ease;
+  border-top: 4px solid #1BBC9B;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
 }
 
 .quick-access-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.action-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  color: #1BBC9B;
+  font-size: 1.5rem;
 }
 
 .quick-access-card h3 {
-  margin-top: 0;
+  margin: 0.5rem 0;
   color: #1BBC9B;
+  font-size: 1.1rem;
 }
 
 .quick-access-card p {
+  margin: 0;
   color: #666;
-  margin-bottom: 1.5rem;
-}
-
-.access-btn {
-  background: #1BBC9B;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.25rem;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.95rem;
-  transition: background 0.2s;
-}
-
-.access-btn:hover {
-  background: #16a085;
-}
-
-/* Profile Dropdown */
-.profile-dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-.profile-btn {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.95rem;
-  transition: background 0.2s;
-}
-
-.profile-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.profile-btn i {
-  font-size: 1.2rem;
-}
-
-.dropdown-content {
-  position: absolute;
-  right: 0;
-  background-color: white;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-  z-index: 1;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.dropdown-content a {
-  color: #333;
-  padding: 0.75rem 1rem;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
   font-size: 0.9rem;
 }
 
-.dropdown-content a:hover {
-  background-color: #f5f5f5;
-  color: #1BBC9B;
-}
-
-.dropdown-content i {
-  width: 20px;
-  text-align: center;
+/* Animations */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 /* Responsive Styles */
@@ -533,25 +722,19 @@ export default {
   }
   
   .dashboard-content {
-    margin-top: 60px;
+    margin-top: 70px;
     padding: 1rem;
   }
   
-  .metrics-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
-  
+  .metrics-grid,
   .quick-access-grid {
     grid-template-columns: 1fr 1fr;
+    gap: 1rem;
   }
 }
 
 @media (max-width: 480px) {
-  .metrics-grid {
-    grid-template-columns: 1fr;
-  }
-  
+  .metrics-grid,
   .quick-access-grid {
     grid-template-columns: 1fr;
   }
@@ -566,6 +749,10 @@ export default {
   
   .profile-btn i.fa-caret-down {
     display: none;
+  }
+  
+  .mobile-menu-content {
+    width: 85%;
   }
 }
 </style>
