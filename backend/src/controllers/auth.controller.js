@@ -127,7 +127,8 @@ export const updateProfile = async (req, res, next) => {
       runValidators: true
     }).select('-password');
 
-    if (!updatedUser) return next(new AppError('User not found', 404));
+    if (!updatedUser)
+      return next(new AppError('User not found', 404));
 
     res.status(200).json({
       status: 'success',
