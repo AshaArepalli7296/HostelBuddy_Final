@@ -117,37 +117,38 @@ export default {
       }
       this.editMode = !this.editMode;
     },
-    async saveProfile() {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`/api/v1/auth/users/${this.profile.id}`, {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            fullName: this.profile.name,
-            email: this.profile.email,
-            contact: this.profile.phone,
-            dob: this.profile.dob,
-            address: this.profile.address,
-            imageUrl: this.profile.imageUrl
-          })
-        });
+async saveProfile() {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`/api/v1/auth/update/${this.profile.id}`, {
+      method: 'PATCH', // ✅ fix: PATCH instead of PUT
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        fullName: this.profile.name,
+        email: this.profile.email,
+        contact: this.profile.phone,
+        dob: this.profile.dob,
+        address: this.profile.address,
+        imageUrl: this.profile.imageUrl
+      })
+    });
 
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message);
 
-        localStorage.setItem('userProfile', JSON.stringify(data.data.user));
-        this.profile.imageUrl = data.data.user.imageUrl;
-        this.editMode = false;
-        alert('Profile updated successfully!');
-      } catch (err) {
-        console.error('Save error:', err);
-        alert('Profile update failed. Try again.');
-      }
-    },
+    localStorage.setItem('userProfile', JSON.stringify(data.data.user));
+    this.profile.imageUrl = data.data.user.imageUrl;
+    this.editMode = false;
+    alert('Profile updated successfully!');
+  } catch (err) {
+    console.error('Save error:', err);
+    alert('Profile update failed. Try again.');
+  }
+}
+,
     triggerFileInput() {
       this.$refs.fileInput.click();
     },
@@ -184,9 +185,7 @@ export default {
 };
 </script>
 
-<style scoped>
-/* 💅 Your existing CSS remains completely untouched */
-</style>
+
 
 <style scoped>
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');

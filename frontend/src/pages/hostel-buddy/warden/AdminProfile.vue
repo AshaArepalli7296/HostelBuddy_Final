@@ -179,36 +179,37 @@ export default {
     changeAvatar() {
       console.log('Changing avatar...');
     },
-    async saveProfile() {
-      this.editMode = false;
+   async saveProfile() {
+  this.editMode = false;
 
-      try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`/api/v1/auth/users/${this.warden.id}`, {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            fullName: this.warden.name,
-            email: this.warden.email,
-            contact: this.warden.phone,
-            address: this.warden.address,
-            imageUrl: this.warden.avatar
-          })
-        });
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`/api/v1/auth/update/${this.warden.id}`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        fullName: this.warden.name,
+        email: this.warden.email,
+        contact: this.warden.phone,
+        address: this.warden.address,
+        imageUrl: this.warden.avatar
+      })
+    });
 
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message);
 
-        localStorage.setItem('userProfile', JSON.stringify(data.data.user));
-        alert('Profile updated successfully!');
-      } catch (err) {
-        console.error('Profile update failed:', err);
-        alert('Something went wrong. Try again.');
-      }
-    },
+    localStorage.setItem('userProfile', JSON.stringify(data.data.user));
+    alert('Profile updated successfully!');
+  } catch (err) {
+    console.error('Profile update failed:', err);
+    alert('Something went wrong. Try again.');
+  }
+}
+,
     updatePassword() {
       if (this.password.new !== this.password.confirm) {
         alert("New passwords don't match!");
