@@ -1,10 +1,10 @@
-// backend/controllers/auth.controller.js
 import User from '../models/User.model.js';
 import jwt from 'jsonwebtoken';
 import AppError from '../utils/appError.js';
 import sendEmail from '../utils/sendEmail.js';
 import crypto from 'crypto';
 
+// JWT token helper
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -96,7 +96,7 @@ export const login = async (req, res, next) => {
       status: 'success',
       message: 'Login successful',
       token,
-      data: { user } // ✅ Send full user object in "data" wrapper
+      data: { user }
     });
 
   } catch (err) {
@@ -140,28 +140,33 @@ export const updateProfile = async (req, res, next) => {
   }
 };
 
-
 // ---------------- SEND OTP ---------------- //
 export const sendOtp = async (req, res, next) => {
   try {
-    const { email } = req.body;
-    if (!email) return next(new AppError('Email is required', 400));
+    const { identifier } = req.body;
+    if (!identifier) return next(new AppError('Email or phone number is required', 400));
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({
+      $or: [{ email: identifier }, { contact: identifier }]
+    });
+
     if (!user) return next(new AppError('User not found', 404));
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
     user.otp = otp;
     user.otpExpires = Date.now() + 10 * 60 * 1000;
     await user.save({ validateBeforeSave: false });
 
-    await sendEmail({
-      to: email,
-      subject: 'HostelBuddy - OTP for Password Reset',
-      message: `Your OTP is: ${otp}. It will expire in 10 minutes.`
-    });
+    if (user.email) {
+      await sendEmail({
+        to: user.email,
+        subject: 'HostelBuddy - OTP for Password Reset',
+        message: `Your OTP is: ${otp}. It will expire in 10 minutes.`
+      });
+    }
 
-    res.status(200).json({ status: 'success', message: 'OTP sent to email' });
+    res.status(200).json({ status: 'success', message: 'OTP sent to registered contact' });
 
   } catch (err) {
     next(new AppError('Failed to send OTP', 500));
@@ -171,11 +176,17 @@ export const sendOtp = async (req, res, next) => {
 // ---------------- VERIFY OTP ---------------- //
 export const verifyOtp = async (req, res, next) => {
   try {
-    const { email, otp } = req.body;
-    if (!email || !otp) return next(new AppError('Email and OTP are required', 400));
+    const { identifier, otp } = req.body;
+    if (!identifier || !otp) return next(new AppError('Identifier and OTP are required', 400));
 
-    const user = await User.findOne({ email, otp, otpExpires: { $gt: Date.now() } });
-    if (!user) return next(new AppError('Invalid or expired OTP', 400));
+    const user = await User.findOne({
+      $or: [{ email: identifier }, { contact: identifier }],
+      otp,
+      otpExpires: { $gt: Date.now() }
+    });
+
+    if (!user)
+      return next(new AppError('Invalid or expired OTP', 400));
 
     res.status(200).json({ status: 'success', message: 'OTP verified' });
 
@@ -187,25 +198,38 @@ export const verifyOtp = async (req, res, next) => {
 // ---------------- RESET PASSWORD ---------------- //
 export const resetPassword = async (req, res, next) => {
   try {
-    const { email, otp, newPassword, confirmPassword } = req.body;
+    const { identifier, otp, newPassword, confirmPassword } = req.body;
 
-    if (!email || !otp || !newPassword || !confirmPassword)
+    // Debugging log (optional)
+    console.log("Reset Password Request Body:", req.body);
+
+    if (!identifier || !otp || !newPassword || !confirmPassword)
       return next(new AppError('All fields are required', 400));
 
     if (newPassword !== confirmPassword)
       return next(new AppError('Passwords do not match', 400));
 
-    const user = await User.findOne({ email, otp, otpExpires: { $gt: Date.now() } });
-    if (!user) return next(new AppError('Invalid or expired OTP', 400));
+    const user = await User.findOne({
+      $or: [{ email: identifier }, { contact: identifier }],
+      otp,
+      otpExpires: { $gt: Date.now() }
+    });
+
+    if (!user)
+      return next(new AppError('Invalid or expired OTP', 400));
 
     user.password = newPassword;
     user.otp = undefined;
     user.otpExpires = undefined;
     await user.save();
 
-    res.status(200).json({ status: 'success', message: 'Password reset successfully' });
+    res.status(200).json({
+      status: 'success',
+      message: 'Password reset successfully'
+    });
 
   } catch (err) {
+    console.error("Reset password error:", err);
     next(new AppError('Password reset failed', 500));
   }
 };

@@ -28,7 +28,8 @@
           maxlength="1"
           class="otp-input"
           v-model="otpDigits[index]"
-          @input="focusNext(index, $event)"
+          @input="handleOtpInput(index, $event)"
+          @keydown.backspace="handleBackspace(index, $event)"
           :ref="'otp' + index"
         />
       </div>
@@ -84,7 +85,7 @@ export default {
   data() {
     return {
       identifier: "",
-      otpDigits: ["", "", "", ""],
+      otpDigits: ["", "", "", "", "", ""],
       newPassword: "",
       confirmPassword: "",
       message: "",
@@ -103,26 +104,38 @@ export default {
         await axios.post("/api/v1/auth/send-otp", {
           identifier: this.identifier,
         });
-        this.message = `📤 OTP sent to ${this.identifier}`;
+        this.message = ` OTP sent to ${this.identifier}`;
       } catch (error) {
-        this.message =
-          `❗ ${error.response?.data?.message || "Failed to send OTP"}`;
+        this.message = `❗ ${error.response?.data?.message || "Failed to send OTP"}`;
       }
       this.otpVerified = false;
       this.clearMessageAfterDelay();
     },
 
-    focusNext(index, event) {
+    handleOtpInput(index, event) {
       const value = event.target.value;
+      this.otpDigits[index] = value;
       if (value.length === 1 && index < this.otpDigits.length - 1) {
-        this.$refs["otp" + (index + 1)][0].focus();
+        const nextRef = this.$refs["otp" + (index + 1)];
+        if (nextRef) nextRef.focus();
+      }
+    },
+
+    handleBackspace(index, event) {
+      if (event.key === "Backspace" && !this.otpDigits[index] && index > 0) {
+        const prevRef = this.$refs["otp" + (index - 1)];
+        if (prevRef) {
+          prevRef.focus();
+          this.otpDigits[index - 1] = "";
+        }
       }
     },
 
     async verifyOtp() {
-      const otp = this.otpDigits.join("");
-      if (otp.length !== 4 || otp.includes("")) {
-        this.otpMessage = "❗ Please enter complete OTP.";
+      const otp = this.otpDigits.map(d => d.trim()).join("");
+
+      if (otp.length !== 6 || this.otpDigits.some(d => d.trim() === "")) {
+        this.otpMessage = "❗ Please enter complete 6-digit OTP.";
         this.clearOtpMessageAfterDelay();
         return;
       }
@@ -133,10 +146,9 @@ export default {
           otp: otp,
         });
         this.otpVerified = true;
-        this.otpMessage = "✅ OTP verified successfully!";
+        this.otpMessage = "OTP verified successfully!";
       } catch (error) {
-        this.otpMessage =
-          `❗ ${error.response?.data?.message || "Invalid OTP"}`;
+        this.otpMessage = `❗ ${error.response?.data?.message || "Invalid OTP"}`;
       }
 
       this.clearOtpMessageAfterDelay();
@@ -162,22 +174,25 @@ export default {
       }
 
       try {
+        const otp = this.otpDigits.map(d => d.trim()).join("");
+
         await axios.post("/api/v1/auth/reset-password", {
           identifier: this.identifier,
+          otp,
           newPassword: this.newPassword,
+          confirmPassword: this.confirmPassword,
         });
 
         this.message = "🎉 Password reset successful!";
         this.identifier = "";
-        this.otpDigits = ["", "", "", ""];
+        this.otpDigits = ["", "", "", "", "", ""];
         this.newPassword = "";
         this.confirmPassword = "";
         this.otpVerified = false;
 
         setTimeout(() => this.goToLogin(), 2000);
       } catch (error) {
-        this.message =
-          `❗ ${error.response?.data?.message || "Password reset failed"}`;
+        this.message = `❗ ${error.response?.data?.message || "Password reset failed"}`;
       }
 
       this.clearMessageAfterDelay();
@@ -185,7 +200,6 @@ export default {
 
     goToLogin() {
       this.$emit("close");
-      // Or use this.$router.push('/login') if it's a standalone page
     },
 
     clearMessageAfterDelay() {
@@ -202,6 +216,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .forgot-wrapper {

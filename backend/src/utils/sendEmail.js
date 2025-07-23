@@ -11,16 +11,16 @@ const sendEmail = async ({ to, subject, message }) => {
     });
 
     const mailOptions = {
-      from: `"HostelBuddy" <${process.env.EMAIL_FROM}>`,
+      from: `"HostelBuddy" <${process.env.EMAIL_FROM}>`, // ✅ Good formatting
       to,
       subject,
-      html: `<p>${message}</p>`, // ✅ HTML version of email
+      html: `<p>${message}</p>`, // ✅ Safe and valid HTML
     };
 
     await transporter.sendMail(mailOptions);
     console.log('✅ Email sent successfully to:', to);
   } catch (error) {
-    console.error('❌ Error sending email:', error); // More verbose
+    console.error('❌ Error sending email:', error);
     throw new Error('Email could not be sent');
   }
 };
