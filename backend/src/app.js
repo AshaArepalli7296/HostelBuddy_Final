@@ -3,11 +3,11 @@ import cors from 'cors';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import authRouter from './routes/auth.routes.js';
+import apiRouter from './routes/api.routes.js'; // ✅ Import added
 import errorHandler from './middleware/errorHandler.js';
 
 const app = express();
 
-// Middleware
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true,
@@ -18,10 +18,10 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(cookieParser());
 
-// Routes
+// Mount core routes
 app.use('/api/v1/auth', authRouter);
+app.use(apiRouter); // ✅ This line enables students/complaints routing
 
-// Error Handling
 app.use(errorHandler);
 
 export default app;

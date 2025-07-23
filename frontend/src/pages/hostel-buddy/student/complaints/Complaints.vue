@@ -102,7 +102,7 @@ export default {
       uploadedPhoto: null,
       statusStep: 1,
       currentComplaint: null
-    }
+    };
   },
   methods: {
     handleFileUpload(event) {
@@ -120,23 +120,39 @@ export default {
       try {
         let imageUrl = '';
 
+        // ⬆️ Upload image to Cloudinary (if available)
         if (this.uploadedPhoto) {
           const formData = new FormData();
           formData.append('file', this.uploadedPhoto);
-          formData.append('upload_preset', 'your_preset'); // 🔁 Replace with actual preset
+          formData.append('upload_preset', 'your_preset'); // 🔁 Replace with your actual preset
           const cloudRes = await axios.post(
-            'https://api.cloudinary.com/v1_1/your_cloud_name/image/upload', // 🔁 Replace with actual Cloudinary name
+            'https://api.cloudinary.com/v1_1/your_cloud_name/image/upload', // 🔁 Replace with your actual Cloudinary name
             formData
           );
           imageUrl = cloudRes.data.secure_url;
         }
 
-        const res = await axios.post('/api/v1/complaints', {
-          category: this.complaintType,
-          description: this.complaintDescription,
-          imageUrl
-        });
+        // 🛡️ Retrieve token from localStorage for auth
+        const student = JSON.parse(localStorage.getItem('user'));
+        const token = student?.token;
+        console.log('Token:', token); // Debug log
 
+        // 🚀 Submit complaint to backend
+        const res = await axios.post(
+          '/api/v1/students/complaints',
+          {
+            category: this.complaintType,
+            description: this.complaintDescription,
+            imageUrl
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        // 🔄 Update UI with submitted complaint
         this.currentComplaint = {
           type: res.data.category,
           description: res.data.description,
@@ -147,27 +163,29 @@ export default {
         this.statusStep = 1;
         alert('Complaint submitted successfully!');
 
-        // Simulated status change (optional visual cue)
+        // 🎬 Simulated status progression
         setTimeout(() => {
           this.statusStep = 2;
           this.currentComplaint.status = 'In Progress';
         }, 3000);
+
         setTimeout(() => {
           this.statusStep = 3;
           this.currentComplaint.status = 'Resolved';
         }, 8000);
 
+        // 🧹 Clear form
         this.complaintType = '';
         this.complaintDescription = '';
         this.uploadedPhoto = null;
 
       } catch (err) {
-        console.error('Error submitting complaint:', err);
-        alert('Failed to submit complaint. Please try again.');
+        console.error('Complaint submission failed:', err.response?.data || err.message);
+        alert(err.response?.data?.message || 'Failed to submit complaint. Please try again.');
       }
     }
   }
-}
+};
 </script>
 
 

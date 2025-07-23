@@ -1,19 +1,18 @@
-// src/routes/student.routes.js
 import express from 'express';
-import authController from '../controllers/auth.controller.js';
-import studentController from '../controllers/student.controller.js';
-import complaintController from '../controllers/complaint.controller.js'; // ✅ Import complaints controller
+import * as authController from '../controllers/auth.controller.js';
+import * as studentController from '../controllers/student.controller.js';
+import * as complaintController from '../controllers/complaint.controller.js';
 
 const router = express.Router();
 
-// 🔐 Apply student-only protection
+// ⛔ Protect all student routes and restrict to 'student' role
 router.use(authController.protect, authController.restrictTo('student'));
 
-// 🎓 Student dashboard route
-router.get('/dashboard', studentController.getStudentDashboard);
+// 🎓 Student Dashboard
+router.get('/student-dashboard', studentController.getStudentDashboard);
 
-// 📮 Complaint routes for students
-router.get('/complaints', complaintController.getMyComplaints);     // Get own complaints
-router.post('/complaints', complaintController.createComplaint);    // Submit a complaint
+// 📮 Complaint Routes
+router.get('/complaints', complaintController.getMyComplaints);
+router.post('/complaints', complaintController.createComplaint);
 
 export default router;

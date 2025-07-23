@@ -1,93 +1,60 @@
 import Complaint from '../models/Complaint.model.js';
+import asyncHandler from '../utils/asyncHandler.js';
 import AppError from '../utils/appError.js';
 
-// ---------------- CREATE COMPLAINT ---------------- //
-export const createComplaint = async (req, res, next) => {
-  try {
-    const { category, description, imageUrl } = req.body;
+/**
+ * @desc    Create a new complaint
+ * @route   POST /api/v1/students/complaints
+ * @access  Protected (Student)
+ */
+export const createComplaint = asyncHandler(async (req, res, next) => {
+  console.log('💡 Incoming Complaint Request Body:', req.body);
+  console.log('💡 Authenticated User:', req.user);
 
-    if (!category || !description) {
-      return next(new AppError('Complaint type and description are required', 400));
-    }
-
-    const complaint = await Complaint.create({
-      student: req.user._id,
-      studentName: req.user.fullName,
-      room: req.user.room || req.user.fieldId, // adjust based on User model
-      category,
-      description,
-      imageUrl: imageUrl || '',
-      status: 'pending',
-      date: new Date()
-    });
-
-    res.status(201).json({
-      status: 'success',
-      message: 'Complaint submitted',
-      data: complaint
-    });
-  } catch (err) {
-    next(new AppError('Failed to submit complaint', 500));
+  if (!req.user || !req.user._id) {
+    return next(new AppError('Unauthorized: Missing user info', 401));
   }
-};
 
-// ---------------- GET COMPLAINTS ---------------- //
-export const getAllComplaints = async (req, res, next) => {
-  try {
-    const complaints = await Complaint.find().sort({ date: -1 });
-    res.status(200).json({
-      status: 'success',
-      results: complaints.length,
-      data: complaints
-    });
-  } catch (err) {
-    next(new AppError('Failed to fetch complaints', 500));
+  const { category, description, imageUrl } = req.body;
+
+  if (!category || !description) {
+    return next(new AppError('Category and description are required', 400));
   }
-};
 
-// ---------------- GET STUDENT'S OWN COMPLAINTS ---------------- //
-export const getMyComplaints = async (req, res, next) => {
-  try {
-    const complaints = await Complaint.find({ student: req.user._id }).sort({ date: -1 });
-    res.status(200).json({
-      status: 'success',
-      results: complaints.length,
-      data: complaints
-    });
-  } catch (err) {
-    next(new AppError('Failed to fetch your complaints', 500));
+  const complaint = await Complaint.create({
+    submittedBy: req.user._id,
+    category,
+    description,
+    imageUrl: imageUrl || '', // fallback to empty string
+    status: 'Pending'
+  });
+
+  console.log('✅ Complaint Created:', complaint);
+
+  res.status(201).json({
+    status: 'success',
+    message: 'Complaint submitted successfully',
+    data: complaint
+  });
+});
+
+/**
+ * @desc    Get all complaints submitted by logged-in student
+ * @route   GET /api/v1/students/complaints
+ * @access  Protected (Student)
+ */
+export const getMyComplaints = asyncHandler(async (req, res, next) => {
+  console.log('📥 Fetching complaints for user:', req.user);
+
+  if (!req.user || !req.user._id) {
+    return next(new AppError('Unauthorized: Missing user info', 401));
   }
-};
 
-// ---------------- UPDATE COMPLAINT STATUS ---------------- //
-export const updateComplaint = async (req, res, next) => {
-  try {
-    const updated = await Complaint.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
+  const complaints = await Complaint.find({ submittedBy: req.user._id }).sort({ date: -1 });
 
-    if (!updated) return next(new AppError('Complaint not found', 404));
-
-    res.status(200).json({
-      status: 'success',
-      message: 'Complaint updated',
-      data: updated
-    });
-  } catch (err) {
-    next(new AppError('Failed to update complaint', 500));
-  }
-};
-
-// ---------------- DELETE COMPLAINT (optional) ---------------- //
-export const deleteComplaint = async (req, res, next) => {
-  try {
-    const deleted = await Complaint.findByIdAndDelete(req.params.id);
-    if (!deleted) return next(new AppError('Complaint not found', 404));
-
-    res.status(204).json({ status: 'success', message: 'Complaint deleted' });
-  } catch (err) {
-    next(new AppError('Failed to delete complaint', 500));
-  }
-};
+  res.status(200).json({
+    status: 'success',
+    results: complaints.length,
+    data: complaints
+  });
+});
