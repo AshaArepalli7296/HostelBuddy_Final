@@ -66,7 +66,35 @@ export const getStudentList = async (req, res, next) => {
   }
 };
 
+
+
+export const getAllComplaints = async (req, res, next) => {
+  try {
+    // Only wardens can access
+    if (req.user.role !== 'warden') {
+      return next(new AppError('Access denied. Warden privileges required.', 403));
+    }
+
+    const complaints = await Complaint.find()
+      .sort({ createdAt: -1 })
+      .populate('submittedBy', 'fullName email roomNumber') // student info
+      .lean();
+
+    res.status(200).json({
+      status: 'success',
+      results: complaints.length,
+      data: complaints
+    });
+
+  } catch (err) {
+    console.error('Error fetching complaints:', err);
+    next(new AppError('Failed to fetch complaints', 500));
+  }
+};
+
+
 export default {
   getWardenDashboard,
-  getStudentList
+  getStudentList,
+    getAllComplaints
 };

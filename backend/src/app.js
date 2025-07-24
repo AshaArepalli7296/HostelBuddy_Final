@@ -6,6 +6,7 @@ import authRouter from './routes/auth.routes.js';
 import apiRouter from './routes/api.routes.js'; // ✅ Import added
 import errorHandler from './middleware/errorHandler.js';
 
+
 const app = express();
 
 app.use(cors({

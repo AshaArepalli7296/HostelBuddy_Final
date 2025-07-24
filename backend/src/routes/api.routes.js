@@ -9,4 +9,5 @@ router.use('/api/v1/auth', authRouter);
 router.use('/api/v1/students', studentRouter);
 router.use('/api/v1/wardens', wardenRouter);
 
+
 export default router;

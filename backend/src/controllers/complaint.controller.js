@@ -3,14 +3,6 @@ import asyncHandler from '../utils/asyncHandler.js';
 import AppError from '../utils/appError.js';
 import cloudinary from '../config/cloudinary.js'; // ✅ Correct path
 
-
-
-
-/**
- * @desc    Create a new complaint
- * @route   POST /api/v1/students/complaints
- * @access  Protected (Student)
- */
 export const createComplaint = asyncHandler(async (req, res, next) => {
   console.log('💡 Incoming Complaint Request Body:', req.body);
   console.log('💡 Authenticated User:', req.user);
@@ -52,13 +44,6 @@ export const createComplaint = asyncHandler(async (req, res, next) => {
   });
 });
 
-
-
-/**
- * @desc    Get all complaints submitted by logged-in student
- * @route   GET /api/v1/students/complaints
- * @access  Protected (Student)
- */
 export const getMyComplaints = asyncHandler(async (req, res, next) => {
   console.log('📥 Fetching complaints for user:', req.user);
 
@@ -74,3 +59,31 @@ export const getMyComplaints = asyncHandler(async (req, res, next) => {
     data: complaints
   });
 });
+
+export const getAllComplaints = async (req, res, next) => {
+  try {
+    const complaints = await Complaint.find()
+      .populate('submittedBy', 'fullName email roomNumber')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ status: 'success', data: complaints });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+export const updateComplaintStatus = async (req, res, next) => {
+  try {
+    const { status, assignedTo } = req.body;
+    const complaint = await Complaint.findByIdAndUpdate(
+      req.params.id,
+      { status, assignedTo },
+      { new: true }
+    );
+    res.status(200).json({ status: 'success', data: complaint });
+  } catch (err) {
+    next(err);
+  }
+};
+
