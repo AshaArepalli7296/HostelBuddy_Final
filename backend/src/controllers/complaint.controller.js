@@ -1,6 +1,10 @@
 import Complaint from '../models/Complaint.model.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import AppError from '../utils/appError.js';
+import cloudinary from '../config/cloudinary.js'; // ✅ Correct path
+
+
+
 
 /**
  * @desc    Create a new complaint
@@ -10,22 +14,32 @@ import AppError from '../utils/appError.js';
 export const createComplaint = asyncHandler(async (req, res, next) => {
   console.log('💡 Incoming Complaint Request Body:', req.body);
   console.log('💡 Authenticated User:', req.user);
+  console.log('💡 Uploaded File:', req.file);
 
   if (!req.user || !req.user._id) {
     return next(new AppError('Unauthorized: Missing user info', 401));
   }
 
-  const { category, description, imageUrl } = req.body;
+  const { category, description } = req.body;
 
   if (!category || !description) {
     return next(new AppError('Category and description are required', 400));
+  }
+
+  // ✅ Upload image to Cloudinary if present
+  let imageUrl = '';
+  if (req.file) {
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'hostelBuddy/complaints',
+    });
+    imageUrl = result.secure_url;
   }
 
   const complaint = await Complaint.create({
     submittedBy: req.user._id,
     category,
     description,
-    imageUrl: imageUrl || '', // fallback to empty string
+    imageUrl,
     status: 'Pending'
   });
 
@@ -37,6 +51,8 @@ export const createComplaint = asyncHandler(async (req, res, next) => {
     data: complaint
   });
 });
+
+
 
 /**
  * @desc    Get all complaints submitted by logged-in student

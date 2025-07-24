@@ -1,18 +1,17 @@
 import express from 'express';
-import * as authController from '../controllers/auth.controller.js';
-import * as studentController from '../controllers/student.controller.js';
-import * as complaintController from '../controllers/complaint.controller.js';
+import { protect, restrictTo } from '../controllers/auth.controller.js';
+import { createComplaint, getMyComplaints } from '../controllers/complaint.controller.js';
+import upload from '../middleware/uploadImage.js';
 
 const router = express.Router();
 
-// ⛔ Protect all student routes and restrict to 'student' role
-router.use(authController.protect, authController.restrictTo('student'));
+router.use(protect); // ✅ Set req.user
+router.use(restrictTo('student')); // ✅ Only allow students
 
-// 🎓 Student Dashboard
-router.get('/student-dashboard', studentController.getStudentDashboard);
+// Complaint submission with image upload
+router.post('/complaints', upload.single('photo'), createComplaint);
 
-// 📮 Complaint Routes
-router.get('/complaints', complaintController.getMyComplaints);
-router.post('/complaints', complaintController.createComplaint);
+// Get student’s own complaints
+router.get('/complaints', getMyComplaints);
 
 export default router;

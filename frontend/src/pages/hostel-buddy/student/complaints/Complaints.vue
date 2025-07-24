@@ -1,5 +1,5 @@
 <template>
-  <Navbar_Student/>
+  <Navbar_Student />
   <div class="request-container1">
     <div class="request-container">
       <div class="cards-wrapper">
@@ -7,7 +7,7 @@
         <!-- Complaint Form -->
         <div class="form-card">
           <h1 class="center-heading">Complaint Submission</h1>
-          
+
           <div class="complaint-section">
             <div class="form-group">
               <label>Complaint Type:</label>
@@ -20,22 +20,22 @@
                 <option>Other</option>
               </select>
             </div>
-            
+
             <div class="form-group">
               <label>Description:</label>
-              <textarea 
-                v-model="complaintDescription" 
+              <textarea
+                v-model="complaintDescription"
                 placeholder="Please describe your complaint in detail..."
                 rows="4"
                 class="form-input"
               ></textarea>
             </div>
-            
+
             <div class="form-group">
               <label>Upload Photo (Optional):</label>
-              <input type="file" @change="handleFileUpload" accept="image/*" class="form-input">
+              <input type="file" @change="handleFileUpload" accept="image/*" class="form-input" />
             </div>
-            
+
             <div class="submit-wrapper">
               <button @click="submitComplaint" class="submit-btn">
                 Submit Complaint
@@ -48,23 +48,23 @@
         <div class="status-card">
           <h2>Request Status</h2>
           <div class="status-timeline">
-            <div class="status-step" :class="{ 'active': statusStep >= 1 }">
+            <div class="status-step" :class="{ active: statusStep >= 1 }">
               <div class="step-number">1</div>
               <div class="step-content">
                 <h3>Pending</h3>
                 <p>Complaint submitted for review</p>
               </div>
             </div>
-            
-            <div class="status-step" :class="{ 'active': statusStep >= 2 }">
+
+            <div class="status-step" :class="{ active: statusStep >= 2 }">
               <div class="step-number">2</div>
               <div class="step-content">
                 <h3>In Progress</h3>
                 <p>Maintenance team working on it</p>
               </div>
             </div>
-            
-            <div class="status-step" :class="{ 'active': statusStep >= 3 }">
+
+            <div class="status-step" :class="{ active: statusStep >= 3 }">
               <div class="step-number">3</div>
               <div class="step-content">
                 <h3>Resolved</h3>
@@ -72,7 +72,7 @@
               </div>
             </div>
           </div>
-          
+
           <div class="current-status" v-if="currentComplaint">
             <h3>Current Complaint:</h3>
             <p><strong>Type:</strong> {{ currentComplaint.type }}</p>
@@ -80,11 +80,11 @@
             <p><strong>Status:</strong> {{ currentComplaint.status }}</p>
           </div>
         </div>
-        
+
       </div>
     </div>
   </div>
-  <Footer/>
+  <Footer />
 </template>
 
 <script>
@@ -101,7 +101,8 @@ export default {
       complaintDescription: '',
       uploadedPhoto: null,
       statusStep: 1,
-      currentComplaint: null
+      currentComplaint: null,
+      complaints: [] // to avoid error if unshift is used
     };
   },
   methods: {
@@ -112,77 +113,50 @@ export default {
       return new Date(dateStr).toLocaleString('en-IN');
     },
     async submitComplaint() {
+      const token = JSON.parse(localStorage.getItem('user'))?.token;
+
       if (!this.complaintType || !this.complaintDescription) {
-        alert('Please fill in all required fields');
+        alert('Please fill in all fields.');
         return;
       }
 
       try {
-        let imageUrl = '';
+        const formData = new FormData();
+        formData.append('category', this.complaintType);
+        formData.append('description', this.complaintDescription);
 
-        // ⬆️ Upload image to Cloudinary (if available)
         if (this.uploadedPhoto) {
-          const formData = new FormData();
-          formData.append('file', this.uploadedPhoto);
-          formData.append('upload_preset', 'your_preset'); // 🔁 Replace with your actual preset
-          const cloudRes = await axios.post(
-            'https://api.cloudinary.com/v1_1/your_cloud_name/image/upload', // 🔁 Replace with your actual Cloudinary name
-            formData
-          );
-          imageUrl = cloudRes.data.secure_url;
+          formData.append('photo', this.uploadedPhoto);
         }
 
-        // 🛡️ Retrieve token from localStorage for auth
-        const student = JSON.parse(localStorage.getItem('user'));
-        const token = student?.token;
-        console.log('Token:', token); // Debug log
-
-        // 🚀 Submit complaint to backend
         const res = await axios.post(
           '/api/v1/students/complaints',
-          {
-            category: this.complaintType,
-            description: this.complaintDescription,
-            imageUrl
-          },
+          formData,
           {
             headers: {
-              Authorization: `Bearer ${token}`
-            }
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data',
+            },
           }
         );
 
-        // 🔄 Update UI with submitted complaint
-        this.currentComplaint = {
-          type: res.data.category,
-          description: res.data.description,
-          date: res.data.date,
-          status: res.data.status
-        };
+        const complaintData = res.data.data;
 
-        this.statusStep = 1;
         alert('Complaint submitted successfully!');
+        this.resetComplaintForm();
 
-        // 🎬 Simulated status progression
-        setTimeout(() => {
-          this.statusStep = 2;
-          this.currentComplaint.status = 'In Progress';
-        }, 3000);
-
-        setTimeout(() => {
-          this.statusStep = 3;
-          this.currentComplaint.status = 'Resolved';
-        }, 8000);
-
-        // 🧹 Clear form
-        this.complaintType = '';
-        this.complaintDescription = '';
-        this.uploadedPhoto = null;
-
+        this.complaints.unshift(complaintData);
+        this.currentComplaint = complaintData;
+        this.statusStep = 1; // reset or set accordingly
       } catch (err) {
-        console.error('Complaint submission failed:', err.response?.data || err.message);
+        console.error('Complaint submission error:', err);
         alert(err.response?.data?.message || 'Failed to submit complaint. Please try again.');
       }
+    },
+    resetComplaintForm() {
+      this.complaintType = '';
+      this.complaintDescription = '';
+      this.uploadedPhoto = null;
     }
   }
 };
