@@ -184,38 +184,38 @@ export default {
         this.warden.avatar = URL.createObjectURL(file);
       }
     },
-    async saveProfile() {
-      try {
-        const token = localStorage.getItem('token');
-        const formData = new FormData();
-        formData.append('fullName', this.warden.name);
-        formData.append('email', this.warden.email);
-        formData.append('contact', this.warden.phone);
-        formData.append('address', this.warden.address);
+       async saveProfile() {
+  this.editMode = false;
 
-        if (this.newAvatarFile) {
-          formData.append('avatar', this.newAvatarFile);
-        }
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`/api/v1/auth/update/${this.warden.id}`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        fullName: this.warden.name,
+        email: this.warden.email,
+        contact: this.warden.phone,
+        address: this.warden.address,
+        imageUrl: this.warden.avatar
+      })
+    });
 
-        const response = await fetch(`/api/v1/auth/update/${this.warden.id}`, {
-          method: 'PATCH',
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
-          body: formData
-        });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message);
 
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message);
+    localStorage.setItem('userProfile', JSON.stringify(data.data.user));
+    alert('Profile updated successfully!');
+  } catch (err) {
+    console.error('Profile update failed:', err);
+    alert('Something went wrong. Try again.');
+  }
+}
 
-        localStorage.setItem('userProfile', JSON.stringify(data.data.user));
-        alert('Profile updated successfully!');
-        window.location.reload();
-      } catch (err) {
-        console.error('Profile update failed:', err);
-        alert('Something went wrong. Try again.');
-      }
-    },
+,
     updatePassword() {
       if (this.password.new !== this.password.confirm) {
         alert("New passwords don't match!");
