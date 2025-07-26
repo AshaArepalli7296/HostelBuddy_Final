@@ -8,14 +8,15 @@ import {
 
 const router = express.Router();
 
-// Protect all routes and restrict to 'warden' role
-router.use(authController.protect, authController.restrictTo('warden'));
+// 🔐 Apply protection and role restriction to all warden routes
+router.use(authController.protect);
+router.use(authController.restrictTo('warden'));
 
-// Warden Dashboard
+// 🧭 Warden Dashboard Endpoint
 router.get('/warden-dashboard', wardenController.getWardenDashboard);
 
-// Complaint management
+// 🛠️ Complaint Management Routes
 router.get('/complaints', getAllComplaints); // Fetch all complaints
-router.patch('/complaints/:id', updateComplaintStatus); // Update status/assignment
+router.patch('/complaints/:id', updateComplaintStatus); // Update status or assign staff
 
 export default router;

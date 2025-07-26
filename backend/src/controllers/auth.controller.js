@@ -236,12 +236,14 @@ export const resetPassword = async (req, res, next) => {
 
 export const restrictTo = (...roles) => {
   return (req, res, next) => {
+    console.log('RestrictTo Check: ', req.user.role); // <== ✅ Good Debug
     if (!roles.includes(req.user.role)) {
       return next(new AppError('You do not have permission to perform this action', 403));
     }
     next();
   };
 };
+
 
 // ---------------- PROTECT (JWT Authentication) ---------------- //
 export const protect = async (req, res, next) => {
@@ -276,3 +278,4 @@ export const protect = async (req, res, next) => {
     return next(new AppError('Authentication failed', 401));
   }
 };
+
