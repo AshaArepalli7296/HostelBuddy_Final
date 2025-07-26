@@ -1,7 +1,7 @@
 import AppError from '../utils/appError.js';
 import User from '../models/User.model.js';
 import Complaint from '../models/Complaint.model.js'; // Assuming you have these models
-import Request from '../models/Request.model.js';
+
 
 export const getWardenDashboard = async (req, res, next) => {
   try {

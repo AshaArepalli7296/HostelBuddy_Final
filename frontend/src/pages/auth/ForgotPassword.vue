@@ -183,7 +183,7 @@ export default {
           confirmPassword: this.confirmPassword,
         });
 
-        this.message = "🎉 Password reset successful!";
+        this.message = " Password reset successful!";
         this.identifier = "";
         this.otpDigits = ["", "", "", "", "", ""];
         this.newPassword = "";
