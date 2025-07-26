@@ -21,8 +21,7 @@ app.use(cookieParser());
 
 // Mount core routes
 app.use('/api/v1/auth', authRouter);
-app.use(apiRouter); // ✅ This line enables students/complaints routing
-
+app.use(apiRouter); 
 app.use(errorHandler);
 
 export default app;
